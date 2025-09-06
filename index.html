@@ -44,7 +44,7 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
 <h1>Bem-vindo(a) a Plug & Play Treinamentos</h1>
 <p>Sua plataforma de cursos e preparação profissional</p>
 <p>Personalizamos seus estudos do seu jeito</p>
-<button id="btnInscreva">Inscreva-se Agora</button>
+<button onclick="window.open('curso1.html','_blank')">Inscreva-se Agora</button>
 </section>
 
 <section class="cursos" id="cursos">
@@ -53,19 +53,19 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
 <h3>Preparo Professor Substituto 2026</h3>
 <p>Parte Básica e Complementar em Exercícios</p>
 <p>Versão para Celular e PC</p>
-<button id="btnCurso1">Saiba Mais</button>
+<button onclick="window.open('curso1.html','_blank')">Saiba Mais</button>
 </div>
 <div class="curso-card">
 <img src="curso2.png" alt="Curso 2">
 <h3>Curso 2</h3>
 <p>Descrição curta do curso</p>
-<button id="btnCurso2">Saiba Mais</button>
+<button>Saiba Mais</button>
 </div>
 <div class="curso-card">
 <img src="curso3.png" alt="Curso 3">
 <h3>Curso 3</h3>
 <p>Descrição curta do curso</p>
-<button id="btnCurso3">Saiba Mais</button>
+<button>Saiba Mais</button>
 </div>
 </section>
 
@@ -76,10 +76,10 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
 
 <section class="contato" id="contato">
 <h2>Contato</h2>
-<form onsubmit="enviarWhatsApp(event)">
-<input type="text" id="nome" placeholder="Nome" required><br>
-<input type="email" id="email" placeholder="E-mail" required><br>
-<textarea id="mensagem" placeholder="Mensagem" rows="4" required></textarea><br>
+<form>
+<input type="text" placeholder="Nome" required><br>
+<input type="email" placeholder="E-mail" required><br>
+<textarea placeholder="Mensagem" rows="4" required></textarea><br>
 <button type="submit">Enviar</button>
 </form>
 <p>WhatsApp: <a href="https://wa.me/5561999251102" target="_blank">(61) 99925-1102</a></p>
@@ -89,40 +89,6 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
 <img src="logomarca.png" alt="Plug & Play Treinamentos" style="height:40px;"><br>
 © 2025 Plug & Play Treinamentos - Todos os direitos reservados
 </footer>
-
-<script>
-  const numeroWhats = "5561999251102";
-
-  // Botão "Inscreva-se Agora" com mensagem personalizada
-  const botaoInscreva = document.getElementById("btnInscreva");
-  botaoInscreva.addEventListener("click", function() {
-    const mensagem = "Olá! Quero me inscrever no curso Preparo Professor Substituto 2026.";
-    const texto = encodeURIComponent(mensagem);
-    window.open(`https://wa.me/${numeroWhats}?text=${texto}`, "_blank");
-  });
-
-  // Botões dos cursos abrem arquivos HTML em nova aba
-  document.getElementById("btnCurso1").addEventListener("click", () => {
-    window.open("curso1.html", "_blank");
-  });
-  document.getElementById("btnCurso2").addEventListener("click", () => {
-    window.open("curso2.html", "_blank");
-  });
-  document.getElementById("btnCurso3").addEventListener("click", () => {
-    window.open("curso3.html", "_blank");
-  });
-
-  // Formulário de contato envia WhatsApp
-  function enviarWhatsApp(event) {
-    event.preventDefault(); 
-    const nome = document.getElementById("nome").value;
-    const email = document.getElementById("email").value;
-    const mensagem = document.getElementById("mensagem").value;
-    const texto = encodeURIComponent(`Nome: ${nome}\nEmail: ${email}\nMensagem: ${mensagem}`);
-    window.open(`https://wa.me/${numeroWhats}?text=${texto}`, "_blank");
-    document.getElementById("contato").scrollIntoView({ behavior: "smooth" });
-  }
-</script>
 
 </body>
 </html>
