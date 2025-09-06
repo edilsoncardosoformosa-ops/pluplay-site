@@ -53,19 +53,19 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
 <h3>Preparo Professor Substituto 2026</h3>
 <p>Parte Básica e Complementar em Exercícios</p>
 <p>Versão para Celular e PC</p>
-<button>Saiba Mais</button>
+<button id="btnCurso1">Saiba Mais</button>
 </div>
 <div class="curso-card">
 <img src="curso2.png" alt="Curso 2">
 <h3>Curso 2</h3>
 <p>Descrição curta do curso</p>
-<button>Saiba Mais</button>
+<button id="btnCurso2">Saiba Mais</button>
 </div>
 <div class="curso-card">
 <img src="curso3.png" alt="Curso 3">
 <h3>Curso 3</h3>
 <p>Descrição curta do curso</p>
-<button>Saiba Mais</button>
+<button id="btnCurso3">Saiba Mais</button>
 </div>
 </section>
 
@@ -90,7 +90,6 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
 © 2025 Plug & Play Treinamentos - Todos os direitos reservados
 </footer>
 
-<!-- Script para WhatsApp e rolagem -->
 <script>
   const numeroWhats = "5561999251102";
 
@@ -102,18 +101,25 @@ nav a {color:white;margin-left:20px;text-decoration:none;font-weight:bold;}
     window.open(`https://wa.me/${numeroWhats}?text=${texto}`, "_blank");
   });
 
-  // Formulário de contato
+  // Botões dos cursos abrem arquivos HTML em nova aba
+  document.getElementById("btnCurso1").addEventListener("click", () => {
+    window.open("curso1.html", "_blank");
+  });
+  document.getElementById("btnCurso2").addEventListener("click", () => {
+    window.open("curso2.html", "_blank");
+  });
+  document.getElementById("btnCurso3").addEventListener("click", () => {
+    window.open("curso3.html", "_blank");
+  });
+
+  // Formulário de contato envia WhatsApp
   function enviarWhatsApp(event) {
-    event.preventDefault(); // evita envio normal
+    event.preventDefault(); 
     const nome = document.getElementById("nome").value;
     const email = document.getElementById("email").value;
     const mensagem = document.getElementById("mensagem").value;
     const texto = encodeURIComponent(`Nome: ${nome}\nEmail: ${email}\nMensagem: ${mensagem}`);
-
-    // Abre WhatsApp
     window.open(`https://wa.me/${numeroWhats}?text=${texto}`, "_blank");
-
-    // Rola suavemente até a seção de contato
     document.getElementById("contato").scrollIntoView({ behavior: "smooth" });
   }
 </script>
