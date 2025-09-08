@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Área do Administrador</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Área do Administrador</h1>
+    <button onclick="showManageUsers()">Gerenciar Usuários</button>
+    <button onclick="showManageQuestions()">Gerenciar Questões</button>
+  </header>
+  <main>
+    <section id="manageUsers" class="hidden">
+      <h2>Usuários Permitidos</h2>
+      <ul id="userList"></ul>
+      <button onclick="hideManageUsers()">Fechar</button>
+    </section>
+    <section id="manageQuestions" class="hidden">
+      <h2>Questões do Quiz</h2>
+      <ul id="questionsList"></ul>
+      <button onclick="hideManageQuestions()">Fechar</button>
+    </section>
+  </main>
+  <footer>
+    <p>© 2025 Curso Interativo</p>
+  </footer>
+  <script src="quiz.js"></script>
+</body>
+</html>

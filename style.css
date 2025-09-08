@@ -1,0 +1,65 @@
+/* Estilos gerais */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+header, footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+}
+
+footer {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.btn {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+
+/* Estilos específicos para dispositivos móveis */
+@media (max-width: 768px) {
+  body {
+    background-color: #e0f7fa;
+  }
+
+  header h1 {
+    font-size: 1.5em;
+  }
+
+  .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Estilos específicos para desktop */
+@media (min-width: 769px) {
+  body {
+    background-color: #ffffff;
+  }
+
+  header h1 {
+    font-size: 2em;
+  }
+
+  .btn {
+    width: auto;
+  }
+}
