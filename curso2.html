@@ -1,1 +1,575 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Curso 2 - Treinamento</title><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>:root{--bg:#f7f7fb;--fg:#111;--muted:#555;--card:#fff;--accent:#2563eb;--ok:#16a34a;--err:#dc2626;--shadow:0 8px 24px rgba(0,0,0,.08);--radius:14px}html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}.wrap{max-width:980px;margin:24px auto;padding:0 16px}.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.row>*{flex:0 0 auto}button{border:0;background:#eee;border-radius:12px;padding:10px 16px;cursor:pointer}button.primary{background:var(--accent);color:#fff}button.ghost{background:transparent;border:1px solid #ddd}button.danger{background:var(--err);color:#fff}button.ok{background:var(--ok);color:#fff}button:disabled{opacity:.5;cursor:not-allowed}input,select,textarea{border:1px solid #ddd;border-radius:10px;padding:10px 12px;font-size:14px;outline:0;background:#fff;width:100%}label{font-weight:600;font-size:13px;color:var(--muted)}.grid{display:grid;gap:12px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:720px){.two,.three{grid-template-columns:1fr}}.muted{color:var(--muted)}.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eef2ff;color:#3b82f6;border:1px solid #dbeafe}.hidden{display:none!important}.section-title{margin:18px 0 8px;font-size:15px;font-weight:700}#comment{font-size:16px;margin-top:10px}#question{font-size:18px}.space{height:8px}</style></head><body><div class="wrap"><div class="card"><div class="row" style="justify-content:space-between"><div><h1 id="trainingTitle">Treinamento Professor Temporário SEDF — Pós-Edital</h1><div class="muted">Quiz protegido com modos: Demo e Aluno</div></div><div class="row"><button id="toggleVoice" class="ghost">🔊 Ativar Ler</button></div></div></div><div class="space"></div><div id="protectedContent" class="card"><div id="userInfo"><div class="section-title">Acesso do Aluno / Demo</div><div class="grid two"><div><label>ID do seu dispositivo</label><div class="row"><input id="userIdBox" readonly/><button id="copyIdBtn">📋 Copiar</button></div></div><div><label>Contato do Master (WhatsApp)</label><div class="row"><a id="waLink" class="primary" target="_blank" style="text-decoration:none;display:inline-block;padding:10px 14px;border-radius:10px">Abrir WhatsApp do Master</a><span class="pill">+55 (61) 99925-1102</span></div><div class="muted" style="margin-top:6px">Envie seu ID ao Master para solicitar liberação.</div><div style="margin-top:6px"><label>Senha liberada pelo Master</label><input type="password" id="masterPass"/><button id="confirmPass" class="ok">Confirmar</button></div></div></div></div></div><div id="menu" class="grid two" style="margin-top:16px"><div><div class="section-title">Escolha o Tópico</div><label for="numQuestions">Quantas questões?</label><input type="number" id="numQuestions" min="1" max="50" value="10"/><div class="row" style="margin-top:10px;flex-wrap:wrap"><button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button><button onclick="startQuiz('ride')" class="primary">RIDE</button><button onclick="startQuiz('Legisla')" class="primary">Legislação</button><button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button><button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button></div><div id="demoNote" class="muted hidden" style="margin-top:8px">ℹ Modo demo ativo: até <b>5 questões por tópico</b>.</div></div></div><div id="quiz" class="hidden" style="margin-top:16px"><div class="row" style="justify-content:space-between"><div id="counter" class="pill"></div><button onclick="backToMenu()" class="ghost">↩ Voltar ao menu</button></div><div style="margin-top:10px"><div id="question"></div><div class="row" style="margin-top:12px"><button id="btnTrue" onclick="answer(true)" class="ok">Certo</button><button id="btnFalse" onclick="answer(false)" class="danger">Errado</button></div><div id="comment" class="muted"></div><div class="row" style="margin-top:12px"><button onclick="nextQuestion()" class="primary">Próxima questão</button></div></div></div><div id="result" class="hidden" style="margin-top:16px"><h3>Fim do Quiz!</h3><p id="score"></p><button onclick="restartQuiz()" class="primary">Reiniciar</button></div><script>let userId=localStorage.getItem('userId')||crypto.randomUUID();localStorage.setItem('userId',userId);document.getElementById('userIdBox').value=userId;document.getElementById('waLink').href='https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);document.getElementById('copyIdBtn').onclick=()=>{navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!')).catch(()=>alert('Falha ao copiar'))};let quizData={Lport:[],ride:[],Legisla:[],TemaEdu:[],Eduincl:[]},quizCurrent=[],currentIndex=0,score=0,maxDemo=5,voiceEnabled=false;document.getElementById('toggleVoice').onclick=()=>{voiceEnabled=!voiceEnabled;document.getElementById('toggleVoice').innerText=voiceEnabled?'🔇 Desativar Ler':'🔊 Ativar Ler'};document.getElementById('confirmPass').onclick=()=>{let p=document.getElementById('masterPass').value;if(p){alert('Senha recebida: '+p);document.getElementById('masterPass').value='';}};function shuffleArray(a){return a.sort(()=>Math.random()-.5)}function startQuiz(t){let n=parseInt(document.getElementById('numQuestions').value)||10;quizCurrent=[...quizData[t]];quizCurrent=shuffleArray(quizCurrent).slice(0,n);currentIndex=0;score=0;document.getElementById('quiz').classList.remove('hidden');showQuestion()}function showQuestion(){if(currentIndex>=quizCurrent.length){endQuiz();return}let q=quizCurrent[currentIndex];document.getElementById('question').innerText=q.q;document.getElementById('comment').innerText='';document.getElementById('counter').innerText=`Questão ${currentIndex+1} de ${quizCurrent.length}`;if(voiceEnabled){let u=new SpeechSynthesisUtterance(q.q);u.rate=1.5;window.speechSynthesis.speak(u)}}function answer(v){let q=quizCurrent[currentIndex];document.getElementById('comment').innerText=q.c;if(q.a===v)score++}function nextQuestion(){currentIndex++;showQuestion()}function endQuiz(){document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`}function backToMenu(){document.getElementById('quiz').classList.add('hidden');document.getElementById('result').classList.add('hidden')}function restartQuiz(){currentIndex=0;score=0;document.getElementById('result').classList.add('hidden')}</script></div></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preparação Temporário 2026/2027 — Curso 1</title>
+<style>
+  :root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
+  header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+  header img{height:44px}
+  main{padding:20px}
+  .card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
+  h1{margin:0 0 8px;font-size:1.25rem}
+  button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}
+  .ghost{background:#eee;color:#222}
+  .grid{display:grid;gap:12px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+  label{font-weight:600}
+  .muted{color:#666;font-size:.95rem}
+  .pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}
+  .hidden{display:none!important}
+  @media(max-width:720px){header{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <img src="logomarca.png" alt="Logo Plug & Play">
+  <nav aria-label="menu">
+    <a href="index.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:14px">Home</a>
+    <span class="muted" style="color:#fff">Curso 1</span>
+  </nav>
+</header>
+
+<main>
+  <div class="card">
+    <h1>Preparação Temporário 2026/2027</h1>
+    <p class="muted">Abrange Básico e Complementar — Milhares de Exercícios</p>
+    <div class="row" style="margin-top:10px">
+      <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
+      <button id="enterWithPassword" class="ghost">🔐 Entrar com senha (se você recebeu uma)</button>
+    </div>
+  </div>
+
+  <div id="protectedContent" class="card hidden" aria-live="polite">
+    <!-- MENU -->
+    <div id="menu">
+      <label for="numQuestions">Quantas questões?</label>
+      <input id="numQuestions" type="number" min="1" max="50" value="10" style="max-width:120px">
+
+      <div class="row" style="margin-top:8px">
+        <button onclick="startQuiz('Lport')">Língua Portuguesa</button>
+        <button onclick="startQuiz('ride')">RIDE</button>
+        <button onclick="startQuiz('Legisla')">Legislação</button>
+        <button onclick="startQuiz('TemaEdu')">Temas Educacionais</button>
+        <button onclick="startQuiz('Eduincl')">Educação Inclusiva</button>
+      </div>
+
+      <div id="demoNote" class="muted" style="margin-top:8px">🔒 Demo: até <strong>5</strong> questões por tópico (se não liberado).</div>
+    </div>
+
+    <!-- Admin / Master buttons -->
+    <div id="adminPanel" class="row" style="margin-top:12px;display:none">
+      <button id="btnAddQ" class="">➕ Nova questão</button>
+      <button id="btnAddBlock">➕ Adicionar bloco</button>
+      <button id="btnManageUsers">👥 Gerenciar usuários</button>
+      <button id="btnManageQs">📝 Gerenciar questões</button>
+    </div>
+
+    <!-- User info for non-master -->
+    <div id="userInfo" class="card hidden" style="margin-top:12px">
+      <div class="row">
+        <div>
+          <label>ID do dispositivo</label>
+          <div class="row">
+            <input id="userIdBox" readonly style="max-width:420px">
+            <button id="copyIdBtn" class="ghost">📋 Copiar</button>
+          </div>
+        </div>
+        <div>
+          <label>Contato Master (WhatsApp)</label>
+          <div class="row">
+            <a id="waLink" href="https://wa.me/5561999251102" target="_blank" class="pill">Abrir WhatsApp do Master</a>
+          </div>
+          <div class="muted" style="margin-top:6px">Envie seu ID para o Master para solicitar liberação. Preferimos liberação por ID, mas existe também a opção por senha se o Master fornecer.</div>
+        </div>
+      </div>
+      <div id="userAllowedNote" style="margin-top:10px"></div>
+    </div>
+
+    <!-- Quiz -->
+    <div id="quiz" class="hidden" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between">
+        <div id="counter" class="pill"></div>
+        <button onclick="backToMenu()" class="ghost">↩ Voltar</button>
+      </div>
+      <div style="margin-top:10px">
+        <div id="question" style="font-size:1.05rem;font-weight:600"></div>
+        <div class="row" style="margin-top:10px">
+          <button id="btnTrue" onclick="answer(true)">Certo</button>
+          <button id="btnFalse" onclick="answer(false)" style="background:#dc2626">Errado</button>
+        </div>
+        <div id="comment" class="muted" style="margin-top:10px"></div>
+        <div style="margin-top:12px">
+          <button onclick="nextQuestion()" class="">Próxima questão</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="result" class="hidden" style="margin-top:12px">
+      <h3>Fim do Quiz</h3>
+      <p id="score"></p>
+      <button onclick="restartQuiz()">Reiniciar</button>
+    </div>
+
+    <!-- Add question -->
+    <div id="addQuestionForm" class="hidden" style="margin-top:12px">
+      <h3 id="addQTitle">Adicionar nova questão</h3>
+      <label>Tópico</label>
+      <select id="newTopic">
+        <option value="Lport">Língua Portuguesa</option>
+        <option value="ride">RIDE</option>
+        <option value="Legisla">Legislação</option>
+        <option value="TemaEdu">Temas Educacionais</option>
+        <option value="Eduincl">Educação Inclusiva</option>
+      </select>
+      <label style="margin-top:8px">Pergunta</label>
+      <textarea id="newQuestionText" rows="3"></textarea>
+      <label>Comentário</label>
+      <textarea id="newQuestionComment" rows="2"></textarea>
+      <label>Resposta correta</label>
+      <select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
+      <div class="row" style="margin-top:8px">
+        <button id="saveQuestionBtn">Salvar</button>
+        <button onclick="hideAddQuestion()" class="ghost">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Add block -->
+    <div id="addQuestionBlockForm" class="hidden" style="margin-top:12px">
+      <h3>Adicionar bloco de questões</h3>
+      <label>Tópico</label>
+      <select id="newBlockTopic">
+        <option value="Lport">Língua Portuguesa</option>
+        <option value="ride">RIDE</option>
+        <option value="Legisla">Legislação</option>
+        <option value="TemaEdu">Temas Educacionais</option>
+        <option value="Eduincl">Educação Inclusiva</option>
+      </select>
+      <label style="margin-top:8px">Formato — uma por linha (JS):</label>
+      <textarea id="newBlockQuestions" rows="6" placeholder="{q:'Pergunta',a:true,c:'Comentário'},"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="saveBlockBtn">Adicionar Bloco</button>
+        <button onclick="hideAddBlock()" class="ghost">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- Manage Users -->
+    <div id="manageUsers" class="hidden" style="margin-top:12px">
+      <h3>Gerenciar Usuários</h3>
+      <div class="muted">Lista de IDs liberados (ID — nota)</div>
+      <ul id="userList"></ul>
+
+      <h4 style="margin-top:8px">Adicionar usuário manualmente</h4>
+      <label>ID</label>
+      <input id="manualUserId" placeholder="cole ou gere ID aqui">
+      <label>Nota (ex.: Fulano de Tal - 61 99999-9999)</label>
+      <input id="manualUserNote" placeholder="Nome e telefone (opcional)">
+      <div class="row" style="margin-top:8px">
+        <button id="addManualUserBtn">Adicionar Usuário</button>
+        <button onclick="hideManageUsers()" class="ghost">Fechar</button>
+      </div>
+
+      <h4 style="margin-top:12px">Senha de aluno (para liberar sem ID)</h4>
+      <div class="muted">O Master pode definir uma senha que alunos podem usar para se liberar. Você define a senha aqui (será armazenado o hash).</div>
+      <input id="studentPassInput" placeholder="Digite uma senha de aluno (o Master definirá)">
+      <div class="row" style="margin-top:6px">
+        <button id="setStudentPassBtn" class="">Definir senha</button>
+        <button id="clearStudentPassBtn" class="ghost">Remover senha</button>
+      </div>
+      <div id="studentPassNotice" class="muted" style="margin-top:8px"></div>
+    </div>
+
+    <!-- Manage Questions -->
+    <div id="manageQuestions" class="hidden" style="margin-top:12px">
+      <h3>Gerenciar Questões</h3>
+      <div id="questionsList" class="grid"></div>
+      <div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ===== Utilitários ===== */
+async function sha256(text){
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ===== Configurações / Estado ===== */
+// troque este hash apenas gerando SHA-256 da nova senha master (não deixe senha em texto)
+const MASTER_HASH = "50d14563b2f686e9f88f93f7ff37f1a048bb49e2746b1c90502f83510c7e1b6c";
+
+// leitura e normalização do allowedUsers (pode ser array de strings ou array de objetos)
+function loadAllowedUsers(){
+  try{
+    const raw = localStorage.getItem('allowedUsers') || '[]';
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed) && parsed.length>0 && typeof parsed[0] === 'string'){
+      // migrar para objetos {id, note}
+      const migrated = parsed.map(s => ({id: s, note: ''}));
+      localStorage.setItem('allowedUsers', JSON.stringify(migrated));
+      return migrated;
+    }
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(e){ return [];}
+}
+function saveAllowedUsers(arr){ localStorage.setItem('allowedUsers', JSON.stringify(arr)); }
+
+let allowedUsers = loadAllowedUsers(); // array of {id,note}
+let userId = localStorage.getItem('userId');
+if(!userId){ userId = crypto.randomUUID(); localStorage.setItem('userId', userId); }
+
+let questions = JSON.parse(localStorage.getItem('questions') || '{}');
+if(Object.keys(questions).length === 0){
+  // questões iniciais de exemplo
+  questions = {
+    Lport:[{q:"Na correção de redações, compreender o sentido literal das palavras é o primeiro passo.",a:true,c:"Correto."}],
+    ride:[{q:"O Distrito Federal está na região Centro-Oeste.",a:true,c:"Correto."}],
+    Legisla:[{q:"A educação é direito de todos e dever do Estado e da família.",a:true,c:"Correto, art.205 CF/88."}],
+    TemaEdu:[{q:"O planejamento educacional é processo contínuo e sistemático.",a:true,c:"Correto."}],
+    Eduincl:[{q:"Todos os alunos têm direito à educação inclusiva.",a:true,c:"Correto."}]
+  };
+  localStorage.setItem('questions', JSON.stringify(questions));
+}
+
+let isMaster = false;
+let voiceEnabled = false;
+let currentQuestions = [], currentIndex = 0, score = 0;
+let editing = null; // {topic, index} quando editando
+
+/* ===== Inicialização UI ===== */
+document.addEventListener('DOMContentLoaded', async ()=>{
+
+  // pedir senha master (ou vazio para demo)
+  const senha = prompt("Digite a senha Master (ou deixe em branco para testar como demo):");
+  if(senha){
+    const h = await sha256(senha);
+    isMaster = (h === MASTER_HASH);
+    if(!isMaster) alert("Senha diferente da Master — entrando como demo (ou aluno se já liberado).");
+  }else{
+    alert("Acesso limitado: demo (até 5 questões por tópico) se não liberado.");
+  }
+
+  // elementos que dependem do tipo de usuário
+  document.getElementById('protectedContent').classList.remove('hidden');
+  document.getElementById('userIdBox').value = userId;
+  document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20' + encodeURIComponent(userId);
+
+  if(isMaster){
+    document.getElementById('adminPanel').style.display = 'flex';
+    document.getElementById('manageUsers').classList.remove('hidden'); // opcional: abrir por padrão
+    // load student pass notice
+    updateStudentPassNotice();
+  } else {
+    document.getElementById('userInfo').classList.remove('hidden');
+    // mostrar se já está liberado por ID
+    const allowedObj = allowedUsers.find(u => u.id === userId);
+    if(allowedObj){
+      document.getElementById('userAllowedNote').innerHTML = `<strong style="color:green">Acesso liberado!</strong><div class="muted">Nota: ${escapeHtml(allowedObj.note || '')}</div>`;
+    }
+  }
+
+  // eventos
+  document.getElementById('copyIdBtn').addEventListener('click', ()=> {
+    navigator.clipboard.writeText(userId).then(()=> alert('ID copiado!'));
+  });
+
+  document.getElementById('toggleVoice').addEventListener('click', ()=> {
+    voiceEnabled = !voiceEnabled;
+    document.getElementById('toggleVoice').textContent = voiceEnabled ? '🔈 Desativar Ler' : '🔊 Ativar Ler';
+  });
+
+  document.getElementById('enterWithPassword').addEventListener('click', async ()=>{
+    const pass = prompt("Digite a senha de aluno fornecida pelo Master:");
+    if(!pass) return alert("Senha não informada.");
+    const stored = localStorage.getItem('studentPassHash');
+    if(!stored) return alert("Ainda não existe senha definida pelo Master.");
+    const h = await sha256(pass);
+    if(h === stored){
+      // liberar este usuário
+      if(!allowedUsers.some(u=>u.id === userId)){
+        allowedUsers.push({id: userId, note: 'Liberado via senha'});
+        saveAllowedUsers(allowedUsers);
+      }
+      document.getElementById('userInfo').innerHTML = `Acesso liberado! <br>Contato Master: <a href="https://wa.me/5561999251102" target="_blank">+55(61)99925-1102</a>`;
+      alert("Acesso liberado com sucesso via senha!");
+    } else alert("Senha incorreta.");
+  });
+
+  // admin buttons
+  document.getElementById('btnAddQ').addEventListener('click', ()=> showAddQuestion());
+  document.getElementById('btnAddBlock').addEventListener('click', ()=> showAddBlock());
+  document.getElementById('btnManageUsers').addEventListener('click', ()=> showManageUsers());
+  document.getElementById('btnManageQs').addEventListener('click', ()=> showManageQuestions());
+
+  document.getElementById('saveQuestionBtn').addEventListener('click', saveQuestion);
+  document.getElementById('saveBlockBtn').addEventListener('click', addQuestionBlock);
+
+  // manage users actions
+  document.getElementById('addManualUserBtn').addEventListener('click', ()=> {
+    const id = document.getElementById('manualUserId').value.trim() || crypto.randomUUID();
+    const note = document.getElementById('manualUserNote').value.trim();
+    if(!allowedUsers.some(u=>u.id === id)){
+      allowedUsers.push({id, note});
+      saveAllowedUsers(allowedUsers);
+      document.getElementById('manualUserId').value = '';
+      document.getElementById('manualUserNote').value = '';
+      renderUserList();
+      alert('Usuário adicionado: ' + id);
+    } else alert('Usuário já liberado.');
+  });
+
+  document.getElementById('setStudentPassBtn').addEventListener('click', async ()=>{
+    const p = document.getElementById('studentPassInput').value.trim();
+    if(!p) return alert('Digite a senha de aluno desejada.');
+    const h = await sha256(p);
+    localStorage.setItem('studentPassHash', h);
+    document.getElementById('studentPassInput').value = '';
+    updateStudentPassNotice();
+    alert('Senha de aluno definida com sucesso (hash armazenado).');
+  });
+  document.getElementById('clearStudentPassBtn').addEventListener('click', ()=>{
+    localStorage.removeItem('studentPassHash');
+    updateStudentPassNotice();
+    alert('Senha de aluno removida.');
+  });
+
+  // inicial render
+  renderUserList();
+  renderQuestionsList();
+  updateStudentPassNotice();
+});
+
+/* ===== Helpers UI ===== */
+function escapeHtml(s=''){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function updateStudentPassNotice(){
+  const h = localStorage.getItem('studentPassHash');
+  document.getElementById('studentPassNotice').textContent = h ? 'Senha de aluno definida.' : 'Nenhuma senha de aluno definida.';
+}
+
+/* ===== Manage Users UI ===== */
+function showManageUsers(){
+  document.getElementById('manageUsers').classList.remove('hidden');
+  renderUserList();
+}
+function hideManageUsers(){ document.getElementById('manageUsers').classList.add('hidden'); }
+
+function renderUserList(){
+  const ul = document.getElementById('userList');
+  ul.innerHTML = '';
+  if(allowedUsers.length === 0){ ul.innerHTML = '<li class="muted">Nenhum usuário liberado</li>'; return; }
+  allowedUsers.forEach((u, idx) => {
+    const li = document.createElement('li');
+    li.style.marginBottom = '6px';
+    li.innerHTML = `<strong>${escapeHtml(u.id)}</strong> — ${escapeHtml(u.note || '')} `;
+    const btnRev = document.createElement('button');
+    btnRev.textContent = 'Revogar';
+    btnRev.className = 'ghost';
+    btnRev.style.marginLeft = '8px';
+    btnRev.onclick = ()=>{
+      if(confirm('Revogar este usuário?')) {
+        allowedUsers.splice(idx,1); saveAllowedUsers(allowedUsers); renderUserList();
+      }
+    };
+    li.appendChild(btnRev);
+    ul.appendChild(li);
+  });
+}
+
+/* ===== Manage Questions UI ===== */
+function showManageQuestions(){ document.getElementById('manageQuestions').classList.remove('hidden'); renderQuestionsList(); }
+function hideManageQuestions(){ document.getElementById('manageQuestions').classList.add('hidden'); }
+
+function renderQuestionsList(){
+  const container = document.getElementById('questionsList');
+  container.innerHTML = '';
+  Object.keys(questions).forEach(topic => {
+    const title = document.createElement('div');
+    title.innerHTML = `<strong style="margin-top:8px">${topic}</strong>`;
+    container.appendChild(title);
+    questions[topic].forEach((q, i) => {
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.alignItems = 'center';
+      row.style.padding = '6px 8px';
+      row.style.borderRadius = '6px';
+      row.style.background = '#fafafa';
+      row.style.marginTop = '6px';
+
+      const left = document.createElement('div');
+      left.innerHTML = `<div><strong>${escapeHtml(q.q)}</strong></div><div class="muted">${escapeHtml(q.c)}</div>`;
+      const right = document.createElement('div');
+
+      const btnEdit = document.createElement('button');
+      btnEdit.textContent = 'Editar';
+      btnEdit.onclick = ()=> startEditQuestion(topic, i);
+
+      const btnDel = document.createElement('button');
+      btnDel.textContent = 'Excluir';
+      btnDel.className = 'ghost';
+      btnDel.style.marginLeft = '8px';
+      btnDel.onclick = ()=>{
+        if(confirm('Confirma exclusão desta questão?')){
+          questions[topic].splice(i,1);
+          localStorage.setItem('questions', JSON.stringify(questions));
+          renderQuestionsList();
+          alert('Questão excluída.');
+        }
+      };
+
+      right.appendChild(btnEdit);
+      right.appendChild(btnDel);
+      row.appendChild(left);
+      row.appendChild(right);
+      container.appendChild(row);
+    });
+  });
+}
+
+/* ===== Add / Edit Question ===== */
+function showAddQuestion(){
+  editing = null;
+  document.getElementById('addQuestionForm').classList.remove('hidden');
+  document.getElementById('addQTitle').textContent = 'Adicionar nova questão';
+  document.getElementById('newQuestionText').value = '';
+  document.getElementById('newQuestionComment').value = '';
+  document.getElementById('newQuestionAnswer').value = 'true';
+}
+function hideAddQuestion(){
+  editing = null;
+  document.getElementById('addQuestionForm').classList.add('hidden');
+}
+function startEditQuestion(topic, index){
+  editing = {topic, index};
+  const obj = questions[topic][index];
+  document.getElementById('addQTitle').textContent = 'Editar questão';
+  document.getElementById('newTopic').value = topic;
+  document.getElementById('newQuestionText').value = obj.q;
+  document.getElementById('newQuestionComment').value = obj.c;
+  document.getElementById('newQuestionAnswer').value = obj.a ? 'true' : 'false';
+  document.getElementById('addQuestionForm').classList.remove('hidden');
+}
+
+function saveQuestion(){
+  const t = document.getElementById('newTopic').value;
+  const qText = document.getElementById('newQuestionText').value.trim();
+  const cText = document.getElementById('newQuestionComment').value.trim();
+  const aVal = document.getElementById('newQuestionAnswer').value === 'true';
+  if(!qText || !cText) return alert('Preencha pergunta e comentário.');
+
+  if(!questions[t]) questions[t] = [];
+  if(editing){
+    // atualizar
+    questions[editing.topic][editing.index] = {q: qText, a: aVal, c: cText};
+    alert('Questão atualizada.');
+    editing = null;
+  } else {
+    questions[t].push({q: qText, a: aVal, c: cText});
+    alert('Questão adicionada.');
+  }
+  localStorage.setItem('questions', JSON.stringify(questions));
+  document.getElementById('addQuestionForm').classList.add('hidden');
+  renderQuestionsList();
+}
+
+/* ===== Add Block (parsing simples) ===== */
+function showAddBlock(){ document.getElementById('addQuestionBlockForm').classList.remove('hidden'); }
+function hideAddBlock(){ document.getElementById('addQuestionBlockForm').classList.add('hidden'); }
+function addQuestionBlock(){
+  const t = document.getElementById('newBlockTopic').value;
+  const raw = document.getElementById('newBlockQuestions').value.trim();
+  if(!raw) return alert('Digite ao menos uma linha.');
+  const lines = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  let added=0, failed=0;
+  lines.forEach(line=>{
+    try {
+      let L = line;
+      if(L.endsWith(',')) L = L.slice(0,-1);
+      const obj = Function('"use strict"; return (' + L + ')')();
+      if(!obj.q || typeof obj.a !== 'boolean' || !obj.c) throw 'Formato inválido';
+      if(!questions[t]) questions[t]=[];
+      questions[t].push(obj);
+      added++;
+    } catch(e){ failed++; }
+  });
+  localStorage.setItem('questions', JSON.stringify(questions));
+  alert(`Bloco processado — adicionadas: ${added}, falharam: ${failed}`);
+  hideAddBlock();
+  renderQuestionsList();
+}
+
+/* ===== Save allowed users helpers used in UI earlier ===== */
+function addManualUser(id, note){
+  if(!allowedUsers.some(u=>u.id === id)){
+    allowedUsers.push({id, note});
+    saveAllowedUsers(allowedUsers);
+    renderUserList();
+    return true;
+  }
+  return false;
+}
+
+/* ===== Quiz logic ===== */
+function shuffle(a){ return a.slice().sort(()=>Math.random()-0.5); }
+
+function startQuiz(topic){
+  let all = questions[topic] || [];
+  // se usuário não é master e não está liberado por ID, limitar
+  const allowed = allowedUsers.some(u => u.id === userId);
+  if(!isMaster && !allowed){
+    all = all.slice(0,5);
+  }
+  if(all.length === 0){ alert('Sem questões neste tópico.'); return; }
+  const num = parseInt(document.getElementById('numQuestions').value) || 10;
+  currentQuestions = shuffle(all).slice(0, num);
+  currentIndex = 0; score = 0;
+  document.getElementById('menu').style.display = 'none';
+  document.getElementById('quiz').classList.remove('hidden');
+  showQuestion();
+}
+
+function showQuestion(){
+  if(currentIndex >= currentQuestions.length){ endQuiz(); return; }
+  const q = currentQuestions[currentIndex];
+  document.getElementById('question').textContent = q.q;
+  document.getElementById('comment').textContent = '';
+  document.getElementById('counter').textContent = `Questão ${currentIndex+1} de ${currentQuestions.length}`;
+  if(voiceEnabled){
+    const u = new SpeechSynthesisUtterance(q.q);
+    u.lang = 'pt-BR'; u.rate = 1.3; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+  }
+}
+
+function answer(choice){
+  const q = currentQuestions[currentIndex];
+  const txt = (choice === q.a ? '✅ Correto! ' : '❌ Errado! ') + (q.c || '');
+  document.getElementById('comment').textContent = txt;
+  if(choice === q.a) score++;
+  if(voiceEnabled){
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang='pt-BR'; u.rate=1.1; window.speechSynthesis.speak(u);
+  }
+}
+function nextQuestion(){ currentIndex++; showQuestion(); }
+function backToMenu(){ document.getElementById('quiz').classList.add('hidden'); document.getElementById('menu').style.display='block'; }
+function endQuiz(){ document.getElementById('quiz').classList.add('hidden'); document.getElementById('result').classList.remove('hidden'); document.getElementById('score').textContent = `Você acertou ${score} de ${currentQuestions.length}.`; }
+function restartQuiz(){ document.getElementById('result').classList.add('hidden'); document.getElementById('menu').style.display = 'block'; }
+
+/* ===== pequenas utilidades ===== */
+function hideManageUsers(){ document.getElementById('manageUsers').classList.add('hidden'); }
+function hideManageQuestions(){ document.getElementById('manageQuestions').classList.add('hidden'); }
+
+/* Escapa simples — usada para exibir notas com segurança */
+function safeText(s){ return (s||'').toString(); }
+
+</script>
+</body>
+</html>
