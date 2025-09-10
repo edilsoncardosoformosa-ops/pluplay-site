@@ -1,180 +1,344 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Preparação Temporário 2026/2027 — Curso 2</title>
+<meta charset="UTF-8" />
+<title>Treinamento Professor Temporário SEDF — Pós-Edital</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  :root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
-  header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
-  header img{height:44px}
-  main{padding:20px}
-  .card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
-  h1{margin:0 0 8px;font-size:1.25rem}
-  button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}
-  .ghost{background:#eee;color:#222}
+  :root {
+    --bg:#f7f7fb; --fg:#111; --muted:#555; --card:#fff; --accent:#2563eb;
+    --ok:#16a34a; --err:#dc2626; --shadow: 0 8px 24px rgba(0,0,0,.08);
+    --radius:14px; --btn-padding:14px 20px; --btn-font:1.05em;
+  }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;height:100%; width:100%;}
+  .wrap{max-width:980px;margin:16px auto;padding:0 16px;}
+  h1{font-size:clamp(24px,3vw,30px);margin:0 0 12px;cursor:pointer}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px; width:100%;}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .row > * {flex:0 0 auto}
+  button{border:0;background:#eee;border-radius:12px;padding:var(--btn-padding);cursor:pointer;font-size:var(--btn-font);}
+  button.primary{background:var(--accent);color:#fff}
+  button.ghost{background:transparent;border:1px solid #ddd}
+  button.danger{background:var(--err);color:#fff}
+  button.ok{background:var(--ok);color:#fff}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  input,select,textarea{
+    border:1px solid #ddd;border-radius:10px;padding:10px 12px;
+    font-size:14px; outline:0; background:#fff; width:100%;
+  }
+  label{font-weight:600;font-size:13px;color:var(--muted)}
   .grid{display:grid;gap:12px}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
-  label{font-weight:600}
-  .muted{color:#666;font-size:.95rem}
-  .pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}
+  .two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .three{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media (max-width:720px){ .two,.three{grid-template-columns:1fr} }
+  .muted{color:var(--muted)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eef2ff;color:#3b82f6;border:1px solid #dbeafe}
   .hidden{display:none!important}
-  @media(max-width:720px){header{flex-direction:column;align-items:flex-start}}
+  .section-title{margin:18px 0 8px;font-size:15px;font-weight:700}
+  #comment{font-size:16px;margin-top:10px}
+  #question{font-size:18px}
+  .space{height:8px}
 </style>
 </head>
 <body>
-<header>
-  <img src="logomarca.png" alt="Logo Plug & Play">
-  <nav aria-label="menu">
-    <a href="index.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:14px">Home</a>
-    <span class="muted" style="color:#fff">Curso 2</span>
-  </nav>
-</header>
+<div class="wrap">
 
-<main>
+  <!-- Cabeçalho -->
   <div class="card">
-    <h1>Preparação Temporário 2026/2027</h1>
-    <p class="muted">Abrange Básico e Complementar — Milhares de Exercícios</p>
-    <div class="row" style="margin-top:10px">
-      <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div>
+        <h1 id="trainingTitle">Treinamento Professor Temporário SEDF — Pós-Edital</h1>
+        <div class="muted">Quiz protegido com modos: Master, Aluno e Demo</div>
+      </div>
+      <div class="row">
+        <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
+        <button id="btnManage" class="ghost hidden">🛠️ Gerenciar</button>
+      </div>
     </div>
   </div>
 
-  <div id="protectedContent" class="card hidden" aria-live="polite">
-    <!-- MENU -->
-    <div id="menu">
-      <label for="numQuestions">Quantas questões?</label>
-      <input id="numQuestions" type="number" min="1" max="50" value="10" style="max-width:120px">
+  <div class="space"></div>
 
-      <div class="row" style="margin-top:8px">
-        <button onclick="startQuiz('Lport')">Língua Portuguesa</button>
-        <button onclick="startQuiz('ride')">RIDE</button>
-        <button onclick="startQuiz('Legisla')">Legislação</button>
-        <button onclick="startQuiz('TemaEdu')">Temas Educacionais</button>
-        <button onclick="startQuiz('Eduincl')">Educação Inclusiva</button>
+  <!-- Conteúdo protegido -->
+  <div id="protectedContent" class="card hidden">
+
+    <!-- Info usuário/demo -->
+    <div id="userInfo" class="hidden">
+      <div class="section-title">Acesso do Aluno / Demo</div>
+      <div class="grid two">
+        <div>
+          <label>ID do seu dispositivo</label>
+          <div class="row">
+            <input id="userIdBox" readonly />
+            <button id="copyIdBtn">📋 Copiar</button>
+          </div>
+        </div>
+        <div>
+          <label>Contato do Master (WhatsApp)</label>
+          <div class="row">
+            <a id="waLink" class="primary" target="_blank" style="text-decoration:none;display:inline-block;padding:10px 14px;border-radius:10px">
+              Abrir WhatsApp do Master
+            </a>
+            <span class="pill">+55 (61) 99925-1102</span>
+          </div>
+          <div class="muted" style="margin-top:6px">
+            Envie seu ID ao Master para solicitar liberação. Ao ser liberado via senha de aluno, esta seção some automaticamente.
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- Menu de tópicos e ações -->
+    <div id="menu" class="grid two" style="margin-top:16px">
+      <div>
+        <div class="section-title">Escolha o Tópico</div>
+        <label for="numQuestions">Quantas questões?</label>
+        <input type="number" id="numQuestions" min="1" max="><" value="10" />
+        <div class="row" style="margin-top:10px;flex-wrap:wrap">
+          <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+          <button onclick="startQuiz('ride')" class="primary">RIDE</button>
+          <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+          <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+          <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+        </div>
+        <div id="demoNote" class="muted hidden" style="margin-top:8px">
+          🔒 Modo demo ativo: até <b>5 questões por tópico</b>.
+        </div>
       </div>
 
-      <div id="demoNote" class="muted" style="margin-top:8px">⚠ Demo: até <strong>5</strong> questões por tópico se não liberado.</div>
+      <!-- Botões Master -->
+      <div id="adminButtons" class="hidden">
+        <div class="section-title">Ações do Master</div>
+        <div class="grid">
+          <button onclick="showAddQuestion()" class="ok">➕ Adicionar questão</button>
+          <button onclick="showAddBlock()" class="ok">➕ Adicionar bloco</button>
+        </div>
+      </div>
     </div>
 
     <!-- Quiz -->
-    <div id="quiz" class="hidden" style="margin-top:12px">
+    <div id="quiz" class="hidden" style="margin-top:16px">
       <div class="row" style="justify-content:space-between">
         <div id="counter" class="pill"></div>
-        <button onclick="backToMenu()" class="ghost">↩ Voltar</button>
+        <button onclick="backToMenu()" class="ghost">↩️ Voltar ao menu</button>
       </div>
       <div style="margin-top:10px">
-        <div id="question" style="font-size:1.05rem;font-weight:600"></div>
-        <div class="row" style="margin-top:10px">
-          <button onclick="answer(true)">Certo</button>
-          <button onclick="answer(false)" style="background:#dc2626">Errado</button>
+        <div id="question"></div>
+        <div class="row" style="margin-top:12px">
+          <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
+          <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
         </div>
-        <div id="comment" class="muted" style="margin-top:10px"></div>
-        <div style="margin-top:12px">
-          <button onclick="nextQuestion()">Próxima questão</button>
+        <div id="comment" class="muted"></div>
+        <div class="row" style="margin-top:12px">
+          <button onclick="nextQuestion()" class="primary">Próxima questão</button>
         </div>
       </div>
     </div>
 
-    <!-- Result -->
-    <div id="result" class="hidden" style="margin-top:12px">
-      <h3>Fim do Quiz</h3>
+    <!-- Resultados -->
+    <div id="result" class="hidden" style="margin-top:16px">
+      <h3>Fim do Quiz!</h3>
       <p id="score"></p>
-      <button onclick="restartQuiz()">Reiniciar</button>
+      <button onclick="restartQuiz()" class="primary">Reiniciar</button>
     </div>
 
-    <!-- User info -->
-    <div id="userInfo" class="card" style="margin-top:12px">
-      <label>ID do dispositivo</label>
-      <div class="row">
-        <input id="userIdBox" readonly style="max-width:420px">
-        <button id="copyIdBtn" class="ghost">📋 Copiar</button>
+    <!-- Formulários Master -->
+    <div id="addQuestionForm" class="hidden" style="margin-top:16px">
+      <div class="section-title">Adicionar nova questão</div>
+      <div class="grid two">
+        <div>
+          <label>Tópico</label>
+          <select id="newTopic">
+            <option value="Lport">Língua Portuguesa</option>
+            <option value="ride">RIDE</option>
+            <option value="Legisla">Legislação</option>
+            <option value="TemaEdu">Temas Educacionais</option>
+            <option value="Eduincl">Educação Inclusiva</option>
+          </select>
+        </div>
+        <div>
+          <label>Resposta correta?</label>
+          <select id="newQuestionAnswer">
+            <option value="true">Certo</option>
+            <option value="false">Errado</option>
+          </select>
+        </div>
       </div>
-      <div class="muted" style="margin-top:6px">
-        Envie seu ID para o Master se precisar liberar acesso completo.
+      <div class="grid" style="margin-top:8px">
+        <div>
+          <label>Pergunta</label>
+          <textarea id="newQuestionText" rows="3"></textarea>
+        </div>
+        <div>
+          <label>Comentário</label>
+          <textarea id="newQuestionComment" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button onclick="addQuestion()" class="ok">Adicionar</button>
+        <button onclick="hideAddQuestion()" class="ghost">Cancelar</button>
       </div>
     </div>
-  </div>
-</main>
+
+    <div id="addQuestionBlockForm" class="hidden" style="margin-top:16px">
+      <div class="section-title">Adicionar bloco de questões</div>
+      <div class="grid two">
+        <div>
+          <label>Tópico</label>
+          <select id="newBlockTopic">
+            <option value="Lport">Língua Portuguesa</option>
+            <option value="ride">RIDE</option>
+            <option value="Legisla">Legislação</option>
+            <option value="TemaEdu">Temas Educacionais</option>
+            <option value="Eduincl">Educação Inclusiva</option>
+          </select>
+        </div>
+        <div>
+          <label>Formato</label>
+          <div class="muted" style="font-size:12px">
+            {q: 'Pergunta', a: true|false, c: 'Comentário'}, ... (uma por linha)
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <textarea id="newBlockQuestions" rows="6" placeholder="{q: 'Pergunta 1', a: true,  c: 'Comentário 1'},&#10;{q: 'Pergunta 2', a: false, c: 'Comentário 2'}"></textarea>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button onclick="addQuestionBlock()" class="ok">Adicionar bloco</button>
+        <button onclick="hideAddBlock()" class="ghost">Cancelar</button>
+      </div>
+    </div>
+
+  </div> <!-- /wrap -->
 
 <script src="controle.js"></script>
 <script>
-let userId = localStorage.getItem('userId');
-if(!userId){ userId = crypto.randomUUID(); localStorage.setItem('userId', userId); }
+// ==== Inicialização ====
+let userType = localStorage.getItem('userType') || 'demo';
+let userId = localStorage.getItem('userId') || crypto.randomUUID();
+localStorage.setItem('userId', userId);
+
+// Preencher ID e WhatsApp
 document.getElementById('userIdBox').value = userId;
-
-let allowedUsers = window.allowedUsers || [];
-let quizData = window.quizData || {};
-let voiceEnabled = false;
-let currentQuestions = [], currentIndex = 0, score = 0;
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('protectedContent').classList.remove('hidden');
-
-  document.getElementById('toggleVoice').addEventListener('click', () => {
-    voiceEnabled = !voiceEnabled;
-    document.getElementById('toggleVoice').textContent = voiceEnabled ? '🔇 Desativar Ler' : '🔊 Ativar Ler';
-  });
-
-  document.getElementById('copyIdBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText(userId).then(()=> alert('ID copiado!'));
-  });
+document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
+document.getElementById('copyIdBtn').addEventListener('click', () => {
+  const userId = document.getElementById('userIdBox').value;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(userId)
+      .then(() => alert('ID copiado!'))
+      .catch(() => fallbackCopy(userId));
+  } else {
+    fallbackCopy(userId);
+  }
 });
 
-/* ===== Quiz Functions ===== */
-function shuffle(a){ return a.slice().sort(()=>Math.random()-0.5); }
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy') ? alert('ID copiado!') : alert('N�o foi poss�vel copiar.');
+  } catch (e) {
+    alert('Erro ao copiar. Copie manualmente.');
+  }
+  document.body.removeChild(textarea);
+}
+
+// Mostrar conteúdo protegido
+if(userType!=='master'){
+  document.getElementById('protectedContent').classList.remove('hidden');
+  document.getElementById('userInfo').classList.remove('hidden');
+  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
+}else{
+  document.getElementById('protectedContent').classList.remove('hidden');
+  document.getElementById('adminButtons').classList.remove('hidden');
+  document.getElementById('btnManage').classList.remove('hidden');
+}
+
+// ==== Voz ====
+let voiceEnabled=false;
+document.getElementById('toggleVoice').onclick = ()=>{
+  voiceEnabled = !voiceEnabled;
+  document.getElementById('toggleVoice').innerText = voiceEnabled?'🔈 Desativar Ler':'🔊 Ativar Ler';
+};
+
+// ==== Quiz ====
+let quizCurrent=[], currentIndex=0, score=0;
+const maxDemo = 5;
+
+function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
 
 function startQuiz(topic){
-  let all = quizData[topic] || [];
-  const allowed = allowedUsers.some(u => u.id === userId);
-  if(!allowed) all = all.slice(0,5); // demo limit
-  if(all.length === 0){ alert('Sem questões neste tópico.'); return; }
-  const num = parseInt(document.getElementById('numQuestions').value) || 10;
-  currentQuestions = shuffle(all).slice(0,num);
-  currentIndex = 0; score = 0;
-  document.getElementById('menu').style.display = 'none';
-  document.getElementById('quiz').classList.remove('hidden');
+  let numQ = parseInt(document.getElementById('numQuestions').value)||10;
+  quizCurrent = window.quizData[topic] || [];
+  if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
+  quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
+  currentIndex=0; score=0;
   showQuestion();
 }
 
 function showQuestion(){
-  if(currentIndex >= currentQuestions.length){ endQuiz(); return; }
-  const q = currentQuestions[currentIndex];
-  document.getElementById('question').textContent = q.q;
-  document.getElementById('comment').textContent = '';
-  document.getElementById('counter').textContent = `Questão ${currentIndex+1} de ${currentQuestions.length}`;
+  if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
+  const q = quizCurrent[currentIndex];
+  document.getElementById('quiz').classList.remove('hidden');
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('question').innerText = q.q;
+  document.getElementById('comment').innerText = '';
+  document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
   if(voiceEnabled){
-    const u = new SpeechSynthesisUtterance(q.q);
-    u.lang='pt-BR'; u.rate=1.3;
+    let u = new SpeechSynthesisUtterance(q.q);
+    u.lang='pt-BR'; u.rate=1.5;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   }
 }
 
-function answer(choice){
-  const q = currentQuestions[currentIndex];
-  const txt = (choice === q.a ? '✔ Correto! ' : '✖ Errado! ') + (q.c || '');
-  document.getElementById('comment').textContent = txt;
-  if(choice === q.a) score++;
+function answer(val){
+  const q = quizCurrent[currentIndex];
+  document.getElementById('comment').innerText = q.c;
+  if(q.a===val) score++;
   if(voiceEnabled){
-    const u = new SpeechSynthesisUtterance(txt);
-    u.lang='pt-BR'; u.rate=1.1;
+    let u = new SpeechSynthesisUtterance(q.c);
+    u.lang='pt-BR'; u.rate=1.5;
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   }
 }
 
 function nextQuestion(){ currentIndex++; showQuestion(); }
-function backToMenu(){ document.getElementById('quiz').classList.add('hidden'); document.getElementById('menu').style.display='block'; }
-function endQuiz(){ 
-  document.getElementById('quiz').classList.add('hidden'); 
-  document.getElementById('result').classList.remove('hidden'); 
-  document.getElementById('score').textContent = `Você acertou ${score} de ${currentQuestions.length}.`; 
+
+function endQuiz(){
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('score').innerText = `Você acertou ${score} de ${quizCurrent.length} questões.`;
 }
-function restartQuiz(){ 
-  document.getElementById('result').classList.add('hidden'); 
-  document.getElementById('menu').style.display='block'; 
+
+function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').classList.add('hidden'); }
+
+// ==== Master ====
+function addQuestion(){
+  const topic=document.getElementById('newTopic').value;
+  const q=document.getElementById('newQuestionText').value.trim();
+  const c=document.getElementById('newQuestionComment').value.trim();
+  const a=document.getElementById('newQuestionAnswer').value==='true';
+  if(q) { window.quizData[topic].push({q,a,c}); hideAddQuestion(); alert('Questão adicionada!'); }
+}
+function showAddQuestion(){document.getElementById('addQuestionForm').classList.remove('hidden');}
+function hideAddQuestion(){document.getElementById('addQuestionForm').classList.add('hidden');}
+
+function addQuestionBlock(){
+  const topic=document.getElementById('newBlockTopic').value;
+  try{
+    const lines=document.getElementById('newBlockQuestions').value.split('\n').filter(l=>l.trim());
+    for(const l of lines){ const obj=eval('('+l+')'); window.quizData[topic].push(obj); }
+    hideAddBlock(); alert('Bloco adicionado!');
+  }catch(e){alert('Erro ao adicionar bloco');}
+}
+function showAddBlock(){document.getElementById('addQuestionBlockForm').classList.remove('hidden');}
+function hideAddBlock(){document.getElementById('addQuestionBlockForm').classList.add('hidden');}
+function backToMenu(){
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.add('hidden');
 }
 </script>
 </body>

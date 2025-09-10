@@ -1,108 +1,90 @@
-// Função para carregar controle.js com versionamento
-function loadQuizDataFromServer(callback) {
-  fetch("version.txt")
-    .then(r => r.text())
-    .then(version => {
-      var script = document.createElement("script");
-      script.src = "controle.js?v=" + version.trim();
-      script.onload = () => {
-        if (callback) callback();
-      };
-      document.head.appendChild(script);
-    })
-    .catch(() => {
-      // fallback se version.txt não existir
-      var script = document.createElement("script");
-      script.src = "controle.js?v=" + new Date().getTime();
-      script.onload = () => {
-        if (callback) callback();
-      };
-      document.head.appendChild(script);
+let voiceEnabled=false, currentQuestions=[], currentIndex=0, score=0;
+
+document.addEventListener("DOMContentLoaded", ()=>{
+    document.getElementById('userIdBox').value = localStorage.getItem('userId') || crypto.randomUUID();
+    document.getElementById('protectedContent').style.display='block';
+
+    document.getElementById('copyIdBtn').addEventListener('click', ()=>{
+        const text = document.getElementById('userIdBox').value;
+        navigator.clipboard.writeText(text).then(()=>alert('ID copiado!'));
     });
-}
 
-// Variáveis do quiz
-var userId = localStorage.getItem("userId");
-if (!userId) {
-  userId = crypto.randomUUID();
-  localStorage.setItem("userId", userId);
-}
-var currentQuestions = [], currentIndex = 0, score = 0, voiceEnabled = false;
+    document.getElementById('confirmPassBtn').addEventListener('click', async ()=>{
+        const pass = document.getElementById('manualPassInput').value.trim();
+        if(!pass){ alert('Senha não informada'); return; }
+        const res = await window.tryManualPass(pass);
+        if(res.success){ alert('Acesso liberado via senha!'); renderUserAllowedNote(); }
+        else alert(res.msg);
+    });
 
-// Inicializa quiz depois de carregar quizData
-loadQuizDataFromServer(function() {
-  // quizData já carregado do controle.js
-  var quizDataGlobal = window.quizData || {};
+    document.getElementById('toggleVoice').addEventListener('click', ()=>{
+        voiceEnabled = !voiceEnabled;
+        document.getElementById('toggleVoice').textContent = voiceEnabled?"🔇 Desativar Ler":"🔊 Ativar Ler";
+    });
 
-  function startQuiz(topic) {
-    var all = quizDataGlobal[topic] || [];
-    if (!all.length) { alert("Sem questões neste tópico."); return; }
-    currentQuestions = all.slice();
-    currentIndex = 0; score = 0;
-    document.getElementById("menu").style.display = "none";
-    document.getElementById("quiz").classList.remove("hidden");
-    showQuestion();
-  }
-
-  function showQuestion() {
-    if (currentIndex >= currentQuestions.length) { endQuiz(); return; }
-    var q = currentQuestions[currentIndex];
-    document.getElementById("question").textContent = q.q;
-    document.getElementById("comment").textContent = "";
-    document.getElementById("counter").textContent =
-      "Questão " + (currentIndex + 1) + " de " + currentQuestions.length;
-
-    if (voiceEnabled) {
-      let u = new SpeechSynthesisUtterance(q.q);
-      u.lang = "pt-BR"; u.rate = 1.5;
-      window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-    }
-  }
-
-  function answer(choice) {
-    var q = currentQuestions[currentIndex];
-    var txt = (choice === q.a ? "✓ Correto! " : "✗ Errado! ") + (q.c || "");
-    document.getElementById("comment").textContent = txt;
-    if (choice === q.a) score++;
-    if (voiceEnabled) {
-      let u = new SpeechSynthesisUtterance(txt);
-      u.lang = "pt-BR"; u.rate = 1.2;
-      window.speechSynthesis.speak(u);
-    }
-  }
-
-  function nextQuestion() { currentIndex++; showQuestion(); }
-  function prevQuestion() { if (currentIndex > 0) { currentIndex--; showQuestion(); } }
-  function backToMenu() {
-    document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("menu").style.display = "block";
-  }
-
-  function endQuiz() {
-    document.getElementById("quiz").classList.add("hidden");
-    document.getElementById("result").classList.remove("hidden");
-    document.getElementById("score").textContent =
-      "Você acertou " + score + " de " + currentQuestions.length;
-  }
-
-  function restartQuiz() {
-    document.getElementById("result").classList.add("hidden");
-    document.getElementById("menu").style.display = "block";
-  }
-
-  function toggleVoice() {
-    voiceEnabled = !voiceEnabled;
-    alert(voiceEnabled ? "Leitura ativada" : "Leitura desativada");
-  }
-
-  // Expor funções globalmente para botões
-  window.startQuiz = startQuiz;
-  window.showQuestion = showQuestion;
-  window.answer = answer;
-  window.nextQuestion = nextQuestion;
-  window.prevQuestion = prevQuestion;
-  window.backToMenu = backToMenu;
-  window.endQuiz = endQuiz;
-  window.restartQuiz = restartQuiz;
-  window.toggleVoice = toggleVoice;
+    renderUserAllowedNote();
 });
+
+function renderUserAllowedNote(){
+    const userId = localStorage.getItem('userId');
+    const noteDiv = document.getElementById('userAllowedNote');
+    if(window.allowedUsers.includes(userId)){
+        noteDiv.innerHTML = `<strong style="color:green">Acesso liberado!</strong>`;
+    } else noteDiv.textContent = "Demo: acesso limitado a 5 questões por tópico.";
+}
+
+function startQuiz(topic){
+    let all = window.quizData[topic] || [];
+    const allowed = window.allowedUsers.includes(localStorage.getItem('userId'));
+    if(!allowed) all = all.slice(0,5); // demo limitado
+    if(all.length===0){ alert("Sem questões neste tópico."); return; }
+    const num = parseInt(document.getElementById("numQuestions").value)||10;
+    currentQuestions = shuffle(all).slice(0,num);
+    currentIndex=0; score=0;
+    document.getElementById('protectedContent').style.display='none';
+    document.getElementById('quiz').style.display='block';
+    showQuestion();
+}
+
+function showQuestion(){
+    if(currentIndex>=currentQuestions.length){ endQuiz(); return; }
+    const q = currentQuestions[currentIndex];
+    document.getElementById('question').textContent = q.q;
+    document.getElementById('comment').textContent='';
+    document.getElementById('counter').textContent = `Questão ${currentIndex+1} de ${currentQuestions.length}`;
+    if(voiceEnabled){
+        let u = new SpeechSynthesisUtterance(q.q);
+        u.lang='pt-BR'; u.rate=1.5;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+    }
+}
+
+function answer(choice){
+    const q = currentQuestions[currentIndex];
+    const txt = (choice===q.a?"✓ Correto! ":"✗ Errado! ") + (q.c||'');
+    document.getElementById('comment').textContent = txt;
+    if(choice===q.a) score++;
+    if(voiceEnabled){
+        let u = new SpeechSynthesisUtterance(txt); u.lang='pt-BR'; u.rate=1.2;
+        window.speechSynthesis.speak(u);
+    }
+}
+
+function nextQuestion(){ currentIndex++; showQuestion(); }
+function backToMenu(){
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('result').style.display='none';
+    document.getElementById('protectedContent').style.display='block';
+}
+function endQuiz(){
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('result').style.display='block';
+    document.getElementById('score').textContent=`Você acertou ${score} de ${currentQuestions.length} questões.`;
+}
+function restartQuiz(){
+    document.getElementById('result').style.display='none';
+    document.getElementById('protectedContent').style.display='block';
+}
+
+function shuffle(a){ return a.slice().sort(()=>Math.random()-0.5); }
