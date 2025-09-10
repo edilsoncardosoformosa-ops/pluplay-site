@@ -74,9 +74,11 @@ b.forEach(line=>{
   if(!line) return;
   try{
     // Aceita vÃ­rgula final removendo-a
-    let jsonLine=line.replace(/,$/,'');
-    let qObj=JSON.parse(jsonLine);
-    if(qObj.q && typeof qObj.a!=='undefined') {window.quizData[t].push(qObj); count++;}
+let jsonLine=line.replace(/,$/,''); // remove vírgula final
+// converte para JSON válido
+jsonLine=jsonLine
+  .replace(/([{,]\s*)(\w+)\s*:/g,'$1"$2":'); // coloca aspas nas chaves
+let qObj=JSON.parse(jsonLine);    if(qObj.q && typeof qObj.a!=='undefined') {window.quizData[t].push(qObj); count++;}
   }catch(e){console.error('Erro:',line);}
 });
 localStorage.setItem('quizData',JSON.stringify(window.quizData));
