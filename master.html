@@ -1,24 +1,75 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Master Admin</title><style>:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}header img{height:44px}main{padding:20px}.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}.ghost{background:#eee;color:#222}.grid{display:grid;gap:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}label{font-weight:600}.muted{color:#666;font-size:.95rem}.pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}.hidden{display:none!important}@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}</style></head><body><header id="masterHeader"><img src="logomarca.png" alt="Logo Plug & Play"><span class="muted">Master Admin</span></header><main>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Master Admin</title>
+<style>
+:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
+header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+header img{height:44px}
+main{padding:20px}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}
+.ghost{background:#eee;color:#222}
+.grid{display:grid;gap:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+label{font-weight:600}
+.muted{color:#666;font-size:.95rem}
+.hidden{display:none!important}
+@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<header id="masterHeader">
+<img src="logomarca.png" alt="Logo Plug & Play">
+<span class="muted">Master Admin</span>
+</header>
+<main>
 <div id="appControls" class="hidden">
 <button id="btnAddQ">➕ Adicionar Questão</button>
 <button id="btnAddBlock">➕ Adicionar Bloco</button>
-<button id="btnManageUsers">👥 Gerenciar Usuários</button>
+<button id="btnManageUsers">👤 Gerenciar Usuários</button>
 <button id="btnManageQs">📋 Gerenciar Questões</button>
-</div><div id="addQuestionForm" class="card hidden">
+</div>
+<div id="addQuestionForm" class="card hidden">
 <h3>Adicionar Questão</h3>
-<label>Tópico</label><select id="newTopic"><option value="Lport">Língua Portuguesa</option><option value="ride">RIDE</option><option value="Legisla">Legislação</option><option value="TemaEdu">Temas Educacionais</option><option value="Eduincl">Educação Inclusiva</option></select>
+<label>Tópico</label>
+<select id="newTopic">
+<option value="Lport">Língua Portuguesa</option>
+<option value="ride">RIDE</option>
+<option value="Legisla">Legislação</option>
+<option value="TemaEdu">Temas Educacionais</option>
+<option value="Eduincl">Educação Inclusiva</option>
+</select>
 <label>Pergunta</label><textarea id="newQuestionText" rows="3"></textarea>
 <label>Comentário</label><textarea id="newQuestionComment" rows="2"></textarea>
-<label>Resposta correta</label><select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
-<div class="row" style="margin-top:6px"><button id="saveQuestionBtn">Salvar</button><button onclick="hideAddQuestion()" class="ghost">Cancelar</button></div>
+<label>Resposta correta</label>
+<select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
+<div class="row" style="margin-top:6px">
+<button id="saveQuestionBtn">Salvar</button>
+<button onclick="hideAddQuestion()" class="ghost">Cancelar</button>
+</div>
 </div>
 
 <div id="addQuestionBlockForm" class="card hidden">
 <h3>Adicionar Bloco</h3>
-<label>Tópico</label><select id="newBlockTopic"><option value="Lport">Língua Portuguesa</option><option value="ride">RIDE</option><option value="Legisla">Legislação</option><option value="TemaEdu">Temas Educacionais</option><option value="Eduincl">Educação Inclusiva</option></select>
+<label>Tópico</label>
+<select id="newBlockTopic">
+<option value="Lport">Língua Portuguesa</option>
+<option value="ride">RIDE</option>
+<option value="Legisla">Legislação</option>
+<option value="TemaEdu">Temas Educacionais</option>
+<option value="Eduincl">Educação Inclusiva</option>
+</select>
 <label>Formato (uma por linha, JS)</label>
 <textarea id="newBlockQuestions" rows="6" placeholder="{q:'Pergunta',a:true,c:'Comentário'},"></textarea>
-<div class="row" style="margin-top:8px"><button id="saveBlockBtn">Adicionar Bloco</button><button onclick="hideAddBlock()" class="ghost">Cancelar</button></div>
+<div class="row" style="margin-top:8px">
+<button id="saveBlockBtn">Adicionar Bloco</button>
+<button onclick="hideAddBlock()" class="ghost">Cancelar</button>
+</div>
 </div>
 
 <div id="manageUsers" class="card hidden">
@@ -26,15 +77,119 @@
 <ul id="userList"></ul>
 <label>ID manual</label><input id="manualUserId" placeholder="ID do usuário">
 <label>Nota</label><input id="manualUserNote" placeholder="Nome/Observação">
-<div class="row" style="margin-top:8px"><button id="addManualUserBtn">Adicionar</button><button onclick="hideManageUsers()" class="ghost">Fechar</button></div>
+<div class="row" style="margin-top:8px">
+<button id="addManualUserBtn">Adicionar</button>
+<button onclick="hideManageUsers()" class="ghost">Fechar</button>
+</div>
 </div>
 
 <div id="manageQuestions" class="card hidden">
 <h3>Gerenciar Questões</h3>
 <div id="questionsList" class="grid"></div>
-<div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
-</div><script>
-const masterHeader=document.getElementById('masterHeader'),appControls=document.getElementById('appControls');let clickCount=0;masterHeader.addEventListener('click',()=>{clickCount++;setTimeout(()=>{if(clickCount>=2){let p=prompt('Senha de acesso Master');if(p==='eni6951'){appControls.classList.remove('hidden')}else{alert('Senha incorreta')}clickCount=0}else{clickCount=0}},300)});const hideAddQuestion=()=>document.getElementById('addQuestionForm').classList.add('hidden'),hideAddBlock=()=>document.getElementById('addQuestionBlockForm').classList.add('hidden'),hideManageUsers=()=>document.getElementById('manageUsers').classList.add('hidden'),hideManageQuestions=()=>document.getElementById('manageQuestions').classList.add('hidden');document.getElementById('btnAddQ').addEventListener('click',()=>{document.getElementById('addQuestionForm').classList.remove('hidden')});document.getElementById('btnAddBlock').addEventListener('click',()=>{document.getElementById('addQuestionBlockForm').classList.remove('hidden')});document.getElementById('btnManageUsers').addEventListener('click',()=>{document.getElementById('manageUsers').classList.remove('hidden');renderUserList()});document.getElementById('btnManageQs').addEventListener('click',()=>{document.getElementById('manageQuestions').classList.remove('hidden');renderQuestionsList()});document.getElementById('saveQuestionBtn').addEventListener('click',()=>{let t=document.getElementById('newTopic').value,q=document.getElementById('newQuestionText').value,c=document.getElementById('newQuestionComment').value,a=document.getElementById('newQuestionAnswer').value==='true';if(!q){alert('Digite a pergunta');return}if(!window.questions)window.questions={};if(!window.questions[t])window.questions[t]=[];window.questions[t].push({q:q,a:a,c:c});alert('Questão adicionada');hideAddQuestion()});document.getElementById('saveBlockBtn').addEventListener('click',()=>{let t=document.getElementById('newBlockTopic').value,b=document.getElementById('newBlockQuestions').value.split('\n').map(x=>x.trim()).filter(x=>x);if(!window.questions)window.questions={};if(!window.questions[t])window.questions[t]=[];b.forEach(l=>{try{window.questions[t].push(eval('('+l+')'))}catch(e){console.error('Erro:',l)}});alert('Bloco adicionado');hideAddBlock()});document.getElementById('addManualUserBtn').addEventListener('click',()=>{let id=document.getElementById('manualUserId').value,n=document.getElementById('manualUserNote').value;if(!id){alert('Digite ID');return}let users=JSON.parse(localStorage.getItem('users')||'[]');users.push({id:id,note:n});localStorage.setItem('users',JSON.stringify(users));renderUserList()});function renderUserList(){let ul=document.getElementById('userList');ul.innerHTML='';let users=JSON.parse(localStorage.getItem('users')||'[]');users.forEach(u=>{let li=document.createElement('li');li.textContent=`${u.id} - ${u.note}`;ul.appendChild(li)})}function renderQuestionsList(){let container=document.getElementById('questionsList');container.innerHTML='';if(!window.questions)return;Object.keys(window.questions).forEach(t=>{window.questions[t].forEach(qObj=>{let row=document.createElement('div');row.className='row';let left=document.createElement('div');left.textContent=`[${t}] ${qObj.q}`;let right=document.createElement('div');right.textContent=qObj.a?'✔':'✖';row.appendChild(left);row.appendChild(right);container.appendChild(row)})})}
-</script><script>
-let currentQuestions=[],currentIndex=0,score=0,voiceEnabled=false;function shuffle(a){return a.slice().sort(()=>Math.random()-0.5)}function startQuiz(topic){let all=window.questions&&window.questions[topic]?window.questions[topic]:[];if(all.length===0){alert('Sem questões');return}let num=parseInt(document.getElementById('numQuestions')?.value)||10;currentQuestions=shuffle(all).slice(0,num);currentIndex=0;score=0;document.getElementById('quizContainer').classList.remove('hidden');showQuestion()}function showQuestion(){if(currentIndex>=currentQuestions.length){endQuiz();return}let q=currentQuestions[currentIndex];document.getElementById('questionBox').textContent=q.q;let opts=document.getElementById('optionsBox');opts.innerHTML='';q.opcoes&&q.opcoes.forEach((o,i)=>{let b=document.createElement('button');b.textContent=o;b.onclick=()=>selectAnswer(i);opts.appendChild(b)});document.getElementById('btnPrev').disabled=currentIndex===0;document.getElementById('btnNext').disabled=currentIndex===currentQuestions.length-1;if(voiceEnabled){let u=new SpeechSynthesisUtterance(q.q);u.lang='pt-BR';window.speechSynthesis.cancel();window.speechSynthesis.speak(u)}}function selectAnswer(idx){let q=currentQuestions[currentIndex];q.selected=idx;if(voiceEnabled){let u=new SpeechSynthesisUtterance(q.opcoes[idx]);u.lang='pt-BR';window.speechSynthesis.speak(u)}}document.getElementById('btnPrev').onclick=()=>{if(currentIndex>0){currentIndex--;showQuestion()}};document.getElementById('btnNext').onclick=()=>{if(currentIndex<currentQuestions.length-1){currentIndex++;showQuestion()}};document.getElementById('btnFinish').onclick=()=>{let correct=currentQuestions.filter(q=>q.selected===q.resposta).length;document.getElementById('quizResult').textContent=`Você acertou ${correct} de ${currentQuestions.length} questões`};document.getElementById('toggleVoice').onclick=()=>{voiceEnabled=!voiceEnabled;alert(voiceEnabled?'Leitura ativada':'Leitura desativada')};function endQuiz(){alert(`Fim do quiz! Acertos: ${score} de ${currentQuestions.length}`)}function backToMenu(){document.getElementById('quizContainer').classList.add('hidden');document.getElementById('menu').style.display='block'}function restartQuiz(){document.getElementById('quizResult').textContent='';document.getElementById('quizContainer').classList.add('hidden');document.getElementById('menu').style.display='block'}
+<div style="margin-top:8px">
+<button onclick="hideManageQuestions()" class="ghost">Fechar</button>
+</div>
+</div>
+<script src="controle.js"></script>
+<script>
+// Funções para esconder formulários
+const hideAddQuestion=()=>document.getElementById('addQuestionForm').classList.add('hidden');
+const hideAddBlock=()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
+const hideManageUsers=()=>document.getElementById('manageUsers').classList.add('hidden');
+const hideManageQuestions=()=>document.getElementById('manageQuestions').classList.add('hidden');
+
+// Duplo clique com SHA-256
+const masterHeader=document.getElementById('masterHeader'),appControls=document.getElementById('appControls');
+let clickCount=0;
+masterHeader.addEventListener('click',async()=>{
+clickCount++;
+setTimeout(async ()=>{
+if(clickCount>=2){
+let p=prompt('Senha de acesso Master');
+if(p){
+const buf=new TextEncoder().encode(p);
+const hash=await crypto.subtle.digest("SHA-256",buf);
+const hashHex=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
+// senha: eni6951
+if(hashHex==='b90c2bdb2d96f3fa13a045127e3aa36f5f5587d8c05a7f0c2bb0a8134f0b7bc1'){
+appControls.classList.remove('hidden');
+}else{alert('Senha incorreta')}
+}
+clickCount=0;
+}else{clickCount=0}
+},300);
+});
+
+// Adicionar questões
+document.getElementById('btnAddQ').addEventListener('click',()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
+document.getElementById('btnAddBlock').addEventListener('click',()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
+document.getElementById('btnManageUsers').addEventListener('click',()=>{document.getElementById('manageUsers').classList.remove('hidden');renderUserList()});
+document.getElementById('btnManageQs').addEventListener('click',()=>{document.getElementById('manageQuestions').classList.remove('hidden');renderQuestionsList()});
+
+// Salvar nova questão
+document.getElementById('saveQuestionBtn').addEventListener('click',()=>{
+let t=document.getElementById('newTopic').value,
+q=document.getElementById('newQuestionText').value,
+c=document.getElementById('newQuestionComment').value,
+a=document.getElementById('newQuestionAnswer').value==='true';
+if(!q){alert('Digite a pergunta');return}
+if(!window.quizData)window.quizData={};
+if(!window.quizData[t])window.quizData[t]=[];
+window.quizData[t].push({q:q,a:a,c:c});
+localStorage.setItem('quizData',JSON.stringify(window.quizData));
+alert('Questão adicionada');
+hideAddQuestion();
+});
+
+// Salvar bloco
+document.getElementById('saveBlockBtn').addEventListener('click',()=>{
+let t=document.getElementById('newBlockTopic').value,
+b=document.getElementById('newBlockQuestions').value.split('\n').map(x=>x.trim()).filter(x=>x);
+if(!window.quizData)window.quizData={};
+if(!window.quizData[t])window.quizData[t]=[];
+b.forEach(l=>{
+try{window.quizData[t].push(eval('('+l+')'))}catch(e){console.error('Erro:',l)}
+});
+localStorage.setItem('quizData',JSON.stringify(window.quizData));
+alert('Bloco adicionado');
+hideAddBlock();
+});
+
+// Usuários
+document.getElementById('addManualUserBtn').addEventListener('click',()=>{
+let id=document.getElementById('manualUserId').value,
+note=document.getElementById('manualUserNote').value;
+if(!id){alert('Digite ID');return}
+let users=JSON.parse(localStorage.getItem('users')||'[]');
+users.push({id:id,note:note});
+localStorage.setItem('users',JSON.stringify(users));
+renderUserList();
+});
+
+// Renderização
+function renderUserList(){
+let ul=document.getElementById('userList');
+ul.innerHTML='';
+let users=JSON.parse(localStorage.getItem('users')||'[]');
+users.forEach(u=>{let li=document.createElement('li');li.textContent=`${u.id} - ${u.note}`;ul.appendChild(li)})
+}
+function renderQuestionsList(){
+let container=document.getElementById('questionsList');
+container.innerHTML='';
+if(!window.quizData)return;
+Object.keys(window.quizData).forEach(t=>{
+window.quizData[t].forEach(q=>{
+let row=document.createElement('div');row.className='row';
+let left=document.createElement('div');left.textContent=`[${t}] ${q.q}`;
+let right=document.createElement('div');
+right.textContent=q.a?'✓':'✗';
+row.appendChild(left);
+row.appendChild(right);
+container.appendChild(row);
+});
+});
+}
 </script>
+</main>
+</body>
+</html>
