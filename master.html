@@ -1,11 +1,39 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Master Admin</title><style>:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}header img{height:44px}main{padding:20px}.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}.ghost{background:#eee;color:#222}.grid{display:grid;gap:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}label{font-weight:600}.muted{color:#666;font-size:.95rem}.pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}.hidden{display:none!important}@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}</style></head><body>
-<header id="masterHeader"><img src="logomarca.png" alt="Logo Plug & Play"><span class="muted">Master Admin</span></header>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Master Admin</title>
+<style>
+:root{--p:#1E90FF;--bg:#f4f4f9;--fg:#333}
+body{font-family:Arial,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
+header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+header img{height:44px}
+main{padding:20px}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}
+.ghost{background:#eee;color:#222}
+.grid{display:grid;gap:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
+label{font-weight:600}
+.muted{color:#666;font-size:.95rem}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header id="masterHeader">
+<img src="logomarca.png" alt="Logo Plug & Play">
+<span class="muted">Master Admin</span>
+</header>
+
 <main>
 <div id="appControls" class="hidden">
 <button id="btnAddQ">➕ Adicionar Questão</button>
-<button id="btnAddBlock">➕ Adicionar Bloco</button>
-<button id="btnManageUsers">👤 Gerenciar Usuários</button>
-<button id="btnManageQs">📋 Gerenciar Questões</button>
+<button id="btnAddBlock">📋 Adicionar Bloco</button>
+<button id="btnManageUsers">👥 Gerenciar Usuários</button>
+<button id="btnManageQs">📖 Gerenciar Questões</button>
 </div>
 
 <div id="addQuestionForm" class="card hidden">
@@ -18,8 +46,10 @@
 <option value="TemaEdu">Temas Educacionais</option>
 <option value="Eduincl">Educação Inclusiva</option>
 </select>
-<label>Pergunta</label><textarea id="newQuestionText" rows="3"></textarea>
-<label>Comentário</label><textarea id="newQuestionComment" rows="2"></textarea>
+<label>Pergunta</label>
+<textarea id="newQuestionText" rows="3"></textarea>
+<label>Comentário</label>
+<textarea id="newQuestionComment" rows="2"></textarea>
 <label>Resposta correta</label>
 <select id="newQuestionAnswer">
 <option value="true">Certo</option>
@@ -62,22 +92,24 @@
 <div id="manageQuestions" class="card hidden">
 <h3>Gerenciar Questões</h3>
 <div id="questionsList" class="grid"></div>
-<div style="margin-top:8px">
-<button onclick="hideManageQuestions()" class="ghost">Fechar</button>
-</div>
+<div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
 </div>
 
 <script src="controle.js"></script>
-<script src="quiz.js"></script>
-<script>
-const masterHeader = document.getElementById('masterHeader');
-const appControls = document.getElementById('appControls');
-let clickCount = 0;
 
-// Duplo clique libera controles
-masterHeader.addEventListener('click', () => {
+<script>
+// Funções para esconder formulários
+const hideAddQuestion = ()=>document.getElementById('addQuestionForm').classList.add('hidden');
+const hideAddBlock = ()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
+const hideManageUsers = ()=>document.getElementById('manageUsers').classList.add('hidden');
+const hideManageQuestions = ()=>document.getElementById('manageQuestions').classList.add('hidden');
+
+// Duplo clique na logomarca habilita os botões
+const masterHeader = document.getElementById('masterHeader'), appControls = document.getElementById('appControls');
+let clickCount = 0;
+masterHeader.addEventListener('click', ()=>{
     clickCount++;
-    setTimeout(() => {
+    setTimeout(()=>{
         if(clickCount >= 2){
             appControls.classList.remove('hidden');
         }
@@ -85,79 +117,81 @@ masterHeader.addEventListener('click', () => {
     }, 300);
 });
 
-// Funções esconder formulários
-const hideAddQuestion = () => document.getElementById('addQuestionForm').classList.add('hidden');
-const hideAddBlock = () => document.getElementById('addQuestionBlockForm').classList.add('hidden');
-const hideManageUsers = () => document.getElementById('manageUsers').classList.add('hidden');
-const hideManageQuestions = () => document.getElementById('manageQuestions').classList.add('hidden');
-
-// Mostrar formulários
-document.getElementById('btnAddQ').addEventListener('click',()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
-document.getElementById('btnAddBlock').addEventListener('click',()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
-document.getElementById('btnManageUsers').addEventListener('click',()=>{
+// Abrir formulários
+document.getElementById('btnAddQ').addEventListener('click', ()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
+document.getElementById('btnAddBlock').addEventListener('click', ()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
+document.getElementById('btnManageUsers').addEventListener('click', ()=>{
     document.getElementById('manageUsers').classList.remove('hidden');
     renderUserList();
 });
-document.getElementById('btnManageQs').addEventListener('click',()=>{
+document.getElementById('btnManageQs').addEventListener('click', ()=>{
     document.getElementById('manageQuestions').classList.remove('hidden');
     renderQuestionsList();
 });
 
-// Adicionar nova questão
-document.getElementById('saveQuestionBtn').addEventListener('click',()=>{
-    let t=document.getElementById('newTopic').value,
-        q=document.getElementById('newQuestionText').value,
-        c=document.getElementById('newQuestionComment').value,
-        a=document.getElementById('newQuestionAnswer').value==='true';
-    if(!q){alert('Digite a pergunta');return;}
-    addQuestion(t,{q:q,a:a,c:c});
+// Salvar questão individual
+document.getElementById('saveQuestionBtn').addEventListener('click', ()=>{
+    const t = document.getElementById('newTopic').value;
+    const q = document.getElementById('newQuestionText').value;
+    const c = document.getElementById('newQuestionComment').value;
+    const a = document.getElementById('newQuestionAnswer').value === 'true';
+    if(!q){alert('Digite a pergunta'); return;}
+    addQuestion(t, {q:a? q : q, a:a, c:c});
     alert('Questão adicionada');
     hideAddQuestion();
 });
 
-// Adicionar bloco de questões
-document.getElementById('saveBlockBtn').addEventListener('click',()=>{
-    let t=document.getElementById('newBlockTopic').value,
-        b=document.getElementById('newBlockQuestions').value.split('\n').map(x=>x.trim()).filter(x=>x);
-    b.forEach(l=>{
+// Salvar bloco de questões
+document.getElementById('saveBlockBtn').addEventListener('click', ()=>{
+    const t = document.getElementById('newBlockTopic').value;
+    const lines = document.getElementById('newBlockQuestions').value.split('\n').map(l=>l.trim()).filter(l=>l);
+    if(!lines.length){alert('Bloco vazio'); return;}
+    let count = 0;
+    lines.forEach(line=>{
         try{
-            addQuestion(t,eval('('+l+')'));
-        }catch(e){console.error('Erro no bloco:',l);}
+            let obj = eval('('+line+')');
+            addQuestion(t,obj);
+            count++;
+        }catch(e){
+            console.error('Erro ao adicionar:',line);
+        }
     });
-    alert('Bloco adicionado');
+    alert(`Bloco adicionado com ${count} questões`);
     hideAddBlock();
 });
 
-// Adicionar usuário manual
-document.getElementById('addManualUserBtn').addEventListener('click',()=>{
-    let id=document.getElementById('manualUserId').value,
-        note=document.getElementById('manualUserNote').value;
-    if(!id){alert('Digite ID');return;}
-    let users=JSON.parse(localStorage.getItem('users')||'[]');
-    users.push({id,note});
-    localStorage.setItem('users',JSON.stringify(users));
+// Gerenciar usuários
+document.getElementById('addManualUserBtn').addEventListener('click', ()=>{
+    const id = document.getElementById('manualUserId').value.trim();
+    const note = document.getElementById('manualUserNote').value.trim();
+    if(!id){alert('Digite ID'); return;}
+    let users = JSON.parse(localStorage.getItem('users')||'[]');
+    users.push({id:id, note:note});
+    localStorage.setItem('users', JSON.stringify(users));
     renderUserList();
 });
 
-// Renderizar listas
 function renderUserList(){
-    let ul=document.getElementById('userList');
-    ul.innerHTML='';
-    let users=JSON.parse(localStorage.getItem('users')||'[]');
+    const ul = document.getElementById('userList');
+    ul.innerHTML = '';
+    const users = JSON.parse(localStorage.getItem('users')||'[]');
     users.forEach(u=>{
-        let li=document.createElement('li');
-        li.textContent=`${u.id} - ${u.note}`;
+        const li = document.createElement('li');
+        li.textContent = `${u.id} - ${u.note}`;
         ul.appendChild(li);
     });
 }
+
+// Gerenciar questões
 function renderQuestionsList(){
-    let container=document.getElementById('questionsList');
-    container.innerHTML='';
-    Object.keys(quizData||{}).forEach(t=>{
-        quizData[t].forEach(q=>{
-            let row=document.createElement('div'); row.className='row';
-            let left=document.createElement('div'); left.textContent=`[${t}] ${q.q}`;
-            let right=document.createElement('div'); right.textContent=q.a?'✓':'✗';
+    const container = document.getElementById('questionsList');
+    container.innerHTML = '';
+    if(!window.quizData) return;
+    Object.keys(window.quizData).forEach(t=>{
+        window.quizData[t].forEach(q=>{
+            const row = document.createElement('div'); row.className='row';
+            const left = document.createElement('div'); left.textContent=`[${t}] ${q.q}`;
+            const right = document.createElement('div'); right.textContent=q.a?'✔':'✖';
             row.appendChild(left); row.appendChild(right);
             container.appendChild(row);
         });
