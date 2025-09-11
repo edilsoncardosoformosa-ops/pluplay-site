@@ -2,224 +2,94 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Treinamento Professor Temporário SEDF — Pós-Edital</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curso 2</title>
 <style>
-:root {
-  --bg:#f7f7fb; --fg:#111; --muted:#555; --card:#fff; --accent:#2563eb;
-  --ok:#16a34a; --err:#dc2626; --shadow:0 8px 24px rgba(0,0,0,.08);
-  --radius:14px; --btn-padding:12px 20px; --btn-font:1.05em;
-}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-.wrap{max-width:980px;margin:16px auto;padding:0 16px;}
-h1{font-size:clamp(24px,3vw,30px);margin:0 0 12px;}
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;width:100%;transition:all 0.3s ease;}
-.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
-.row > * {flex:0 0 auto;}
-button{border:0;border-radius:12px;padding:var(--btn-padding);cursor:pointer;font-size:var(--btn-font);transition:all 0.2s ease;}
-button.primary{background:var(--accent);color:#fff;}
-button.primary:hover{background:#1e40af;}
-button.ghost{background:transparent;border:1px solid #ddd;}
-button.ghost:hover{background:#f0f0f5;}
-button.danger{background:var(--err);color:#fff;}
-button.ok{background:var(--ok);color:#fff;}
-button:disabled{opacity:.5;cursor:not-allowed;}
-input,select,textarea{border:1px solid #ddd;border-radius:10px;padding:10px 12px;font-size:14px;outline:0;background:#fff;width:100%;}
-label{font-weight:600;font-size:13px;color:var(--muted);}
-.muted{color:var(--muted);}
-.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eef2ff;color:#3b82f6;border:1px solid #dbeafe;}
-.hidden{display:none!important;}
-.section-title{margin:18px 0 8px;font-size:15px;font-weight:700;}
-#comment{font-size:16px;margin-top:10px;opacity:0;transition:opacity 0.5s;}
-#question{font-size:18px;margin-top:8px;transition:all 0.3s ease;}
-.correct{background:#dcfce7;color:var(--ok);padding:8px;border-radius:8px;margin-top:6px;animation:fadeIn 0.5s forwards;}
-.wrong{background:#fee2e2;color:var(--err);padding:8px;border-radius:8px;margin-top:6px;animation:fadeIn 0.5s forwards;}
-@keyframes fadeIn{0%{opacity:0;transform:translateY(-5px);}100%{opacity:1;transform:translateY(0);}}
-.topic-btn{flex:1 1 140px;background:#fff;border-radius:14px;box-shadow:var(--shadow);text-align:center;padding:16px;cursor:pointer;transition:all 0.3s ease;}
-.topic-btn:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 16px 40px rgba(0,0,0,.2);}
-.topic-btn span{font-size:2.2em;display:block;margin-bottom:8px;}
-@media(max-width:720px){.row,.topic-btn{flex-direction:column;}}
-.fixed-button{min-width:160px;text-align:center;transition:all 0.2s ease; position:relative;}
-.fixed-button.active{background:#1e40af;color:#fff;transform:scale(1.05);}
+body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f4f4f9;color:#333}
+header{background:#FFA500;color:#fff;padding:12px;text-align:center;cursor:pointer}
+.container{padding:12px;max-width:600px;margin:auto}
+.card{background:#fff;padding:12px;margin:6px 0;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+button{padding:6px 12px;margin:4px;border:none;border-radius:4px;cursor:pointer}
+button.ghost{background:#ccc;color:#333}
+.feedback{margin-top:8px;font-weight:bold}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="wrap">
-
-<!-- Header -->
-<div class="card">
-  <div class="row" style="justify-content:space-between;align-items:center;">
-    <div>
-      <h1 id="trainingTitle">Treinamento Professor SEDF - Pós Edital</h1>
-      <div class="muted">Quiz protegido com modos: Master, Aluno e Demo</div>
-    </div>
-    <div class="row">
-      <button id="toggleVoice" class="ghost fixed-button">🔊 Ativar Ler</button>
-      <button id="btnManualPassword" class="ghost fixed-button">🔑 Inserir Senha Manual</button>
-    </div>
+<header ondblclick="toggleMaster()">Curso 2</header>
+<div class="container">
+  <div id="questionContainer"></div>
+  <div id="feedback" class="feedback"></div>
+  <div style="margin-top:12px">
+    Acertos: <span id="score">0</span>
   </div>
 </div>
-
-<div class="space" style="height:12px;"></div>
-
-<div id="protectedContent" class="card hidden">
-
-  <!-- Info usuário/demo -->
-  <div id="userInfo" class="hidden">
-    <div class="section-title">Acesso do Aluno / Demo</div>
-    <div class="row">
-      <div style="flex:1">
-        <label>ID do seu dispositivo</label>
-        <div class="row">
-          <input id="userIdBox" readonly style="flex:1"/>
-          <button id="copyIdBtn">📋 Copiar</button>
-        </div>
-      </div>
-      <div style="flex:1">
-        <label>Contato do Master (WhatsApp)</label>
-        <div class="row">
-          <a id="waLink" target="_blank" class="primary" style="flex:1;text-decoration:none;padding:10px 14px;border-radius:10px;text-align:center;">
-            💬 WhatsApp Master
-          </a>
-        </div>
-        <div class="muted" style="margin-top:6px;font-size:13px;">
-          Envie seu ID ao Master para solicitar liberação.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Menu tópicos -->
-  <div id="menu" style="margin-top:16px">
-    <div class="section-title">Escolha o Tópico</div>
-    <label for="numQuestions">Quantas questões?</label>
-    <input type="number" id="numQuestions" min="1" value="10" style="max-width:100px;margin-bottom:12px;"/>
-    <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:16px;">
-      <div class="topic-btn primary" onclick="startQuiz('Lport')"><span>📚</span> Língua Portuguesa</div>
-      <div class="topic-btn primary" onclick="startQuiz('ride')"><span>📝</span> RIDE</div>
-      <div class="topic-btn primary" onclick="startQuiz('Legisla')"><span>⚖️</span> Legislação</div>
-      <div class="topic-btn primary" onclick="startQuiz('TemaEdu')"><span>🎓</span> Temas Educacionais</div>
-      <div class="topic-btn primary" onclick="startQuiz('Eduincl')"><span>🤝</span> Educação Inclusiva</div>
-    </div>
-    <div id="demoNote" class="muted hidden" style="margin-top:8px;">ℹ️ Modo demo: até <b>5 questões por tópico</b>.</div>
-  </div>
-
-  <!-- Quiz -->
-  <div id="quiz" class="hidden" style="margin-top:16px;">
-    <div class="row" style="justify-content:space-between;">
-      <div id="counter" class="pill"></div>
-      <button onclick="backToMenu()" class="ghost">↩ Voltar ao menu</button>
-    </div>
-    <div id="question"></div>
-    <div class="row" style="margin-top:12px;flex-wrap:wrap;">
-      <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
-      <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
-    </div>
-    <div id="comment"></div>
-    <div class="row" style="margin-top:12px;">
-      <button onclick="nextQuestion()" class="primary">Próxima questão</button>
-    </div>
-  </div>
-
-  <!-- Resultados -->
-  <div id="result" class="hidden" style="margin-top:16px;">
-    <h3>Fim do Quiz!</h3>
-    <p id="score"></p>
-    <button onclick="restartQuiz()" class="primary">Reiniciar</button>
-  </div>
-
-</div>
-
-<script src="controle.js"></script> <!-- banco externo -->
 
 <script>
-// ===== Inicialização =====
-let userType = localStorage.getItem('userType') || 'demo';
-let userId = localStorage.getItem('userId') || crypto.randomUUID();
-localStorage.setItem('userId', userId);
-document.getElementById('userIdBox').value = userId;
-document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
+// ====== Config Supabase ======
+const supabaseUrl = 'https://YOUR_SUPABASE_URL';
+const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+const supabase = supabase.createClient(supabaseUrl,supabaseKey);
 
-document.getElementById('copyIdBtn').addEventListener('click', ()=>{
-  const uid = document.getElementById('userIdBox').value;
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(uid).then(()=>alert('ID copiado!')).catch(()=>fallbackCopy(uid));
-  } else fallbackCopy(uid);
-});
-function fallbackCopy(text){
-  const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
-  try{document.execCommand('copy')?alert('ID copiado!'):alert('Não foi possível copiar.');}
-  catch(e){alert('Erro ao copiar. Copie manualmente.');} document.body.removeChild(ta);
-}
+let questions = [];
+let currentIndex = 0;
+let score = 0;
 
-// Mostrar conteúdo protegido
-if(userType!=='master'){ 
-  document.getElementById('protectedContent').classList.remove('hidden'); 
-  document.getElementById('userInfo').classList.remove('hidden'); 
-  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden'); 
-}
-
-// ===== Voz =====
-let voiceEnabled=false;
-document.getElementById('toggleVoice').onclick = ()=>{
-  voiceEnabled=!voiceEnabled;
-  document.getElementById('toggleVoice').classList.toggle('active',voiceEnabled);
-  document.getElementById('toggleVoice').innerText = voiceEnabled?'🔊 Desativar Ler':'🔊 Ativar Ler';
-};
-
-// ===== Senha manual =====
-document.getElementById('btnManualPassword').onclick = ()=>{
-  const pw = prompt("Digite a senha de liberação:");
-  if(!pw) return;
-  if(typeof masterPassword!=='undefined' && pw===masterPassword){
-    alert("Senha correta! Acesso liberado.");
-    userType='aluno';
-    localStorage.setItem('userType','aluno');
-  } else {
-    alert("Senha inválida. Solicite ao Master a senha correta.");
-  }
-};
-
-// ===== Quiz =====
-let quizCurrent=[], currentIndex=0, score=0;
-const maxDemo=5;
-let answeredThis=false;
-
-function shuffleArray(arr){return arr.sort(()=>Math.random()-0.5);}
-function startQuiz(topic){
-  if(!window.quizData || !window.quizData[topic] || window.quizData[topic].length===0){alert('Nenhuma questão disponível para este tópico.'); return;}
-  let numQ=parseInt(document.getElementById('numQuestions').value)||10;
-  quizCurrent = window.quizData[topic]; 
-  if(userType==='demo') quizCurrent=quizCurrent.slice(0,maxDemo);
-  quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
-  currentIndex=0; score=0;
-  document.getElementById('menu').classList.add('hidden');
-  document.getElementById('quiz').classList.remove('hidden');
-  document.getElementById('result').classList.add('hidden');
+// ====== Carregar questões ======
+async function loadQuestions(topicFilter='Curso2'){
+  const {data,error} = await supabase.from('questions').select('*').eq('topic',topicFilter);
+  if(error){ alert('Erro ao carregar questões'); return; }
+  questions = data;
+  currentIndex = 0;
+  score = 0;
+  document.getElementById('score').textContent = score;
   showQuestion();
 }
+
+// ====== Mostrar questão ======
 function showQuestion(){
-  if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
-  const q=quizCurrent[currentIndex];
-  document.getElementById('question').innerText = q.q;
-  const commentBox=document.getElementById('comment'); commentBox.innerHTML=''; commentBox.style.opacity=0;
-  document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
-  answeredThis=false;
-  if(voiceEnabled){let u=new SpeechSynthesisUtterance(q.q); u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);}
+  const container = document.getElementById('questionContainer');
+  container.innerHTML='';
+  document.getElementById('feedback').textContent='';
+  if(currentIndex>=questions.length){ container.innerHTML='<b>Fim do quiz!</b>'; return; }
+  const q = questions[currentIndex];
+  speak(q.question); // fala a questão
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML=`<b>Pergunta ${currentIndex+1}:</b> ${q.question}`;
+  const btnTrue = document.createElement('button'); btnTrue.textContent='Certo';
+  const btnFalse = document.createElement('button'); btnFalse.textContent='Errado';
+  btnTrue.onclick=()=>checkAnswer(true,q);
+  btnFalse.onclick=()=>checkAnswer(false,q);
+  card.appendChild(btnTrue); card.appendChild(btnFalse);
+  container.appendChild(card);
 }
-function answer(val){
-  if(answeredThis) return; answeredThis=true;
-  const q=quizCurrent[currentIndex];
-  const commentBox=document.getElementById('comment');
-  if(q.a===val){ score++; commentBox.innerHTML=`<div class="correct">✔ Você acertou! ${q.c}</div>`; }
-  else { commentBox.innerHTML=`<div class="wrong">✖ Você errou! ${q.c}</div>`; }
-  commentBox.style.opacity=1;
-  if(voiceEnabled){let u=new SpeechSynthesisUtterance((q.a===val?'Você acertou! ':'Você errou! ')+q.c); u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);}
+
+// ====== Checar resposta ======
+function checkAnswer(answer,question){
+  const feedback = document.getElementById('feedback');
+  if(answer===question.answer){
+    feedback.textContent='✔ Correto!';
+    score++; document.getElementById('score').textContent = score;
+  } else {
+    feedback.textContent='✖ Errado! '+(question.comment||'');
+  }
+  currentIndex++;
+  setTimeout(showQuestion,800);
 }
-function nextQuestion(){ currentIndex++; showQuestion(); }
-function endQuiz(){ document.getElementById('quiz').classList.add('hidden'); document.getElementById('result').classList.remove('hidden'); document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`; }
-function restartQuiz(){currentIndex=0; score=0; document.getElementById('result').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');}
-function backToMenu(){document.getElementById('quiz').classList.add('hidden'); document.getElementById('result').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');}
+
+// ====== Text-to-Speech ======
+function speak(text){
+  if('speechSynthesis' in window){
+    const utter = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utter);
+  }
+}
+
+// ====== Toggle master header (para debug ou admin) ======
+function toggleMaster(){ alert('Master acessado'); }
+
+// ====== Inicialização ======
+loadQuestions();
 </script>
 </body>
 </html>
