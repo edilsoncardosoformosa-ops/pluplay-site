@@ -1,345 +1,225 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Treinamento Professor Temporário SEDF — Pós-Edital</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  :root {
-    --bg:#f7f7fb; --fg:#111; --muted:#555; --card:#fff; --accent:#2563eb;
-    --ok:#16a34a; --err:#dc2626; --shadow: 0 8px 24px rgba(0,0,0,.08);
-    --radius:14px; --btn-padding:14px 20px; --btn-font:1.05em;
-  }
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;height:100%; width:100%;}
-  .wrap{max-width:980px;margin:16px auto;padding:0 16px;}
-  h1{font-size:clamp(24px,3vw,30px);margin:0 0 12px;cursor:pointer}
-  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px; width:100%;}
-  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-  .row > * {flex:0 0 auto}
-  button{border:0;background:#eee;border-radius:12px;padding:var(--btn-padding);cursor:pointer;font-size:var(--btn-font);}
-  button.primary{background:var(--accent);color:#fff}
-  button.ghost{background:transparent;border:1px solid #ddd}
-  button.danger{background:var(--err);color:#fff}
-  button.ok{background:var(--ok);color:#fff}
-  button:disabled{opacity:.5;cursor:not-allowed}
-  input,select,textarea{
-    border:1px solid #ddd;border-radius:10px;padding:10px 12px;
-    font-size:14px; outline:0; background:#fff; width:100%;
-  }
-  label{font-weight:600;font-size:13px;color:var(--muted)}
-  .grid{display:grid;gap:12px}
-  .two{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .three{grid-template-columns:repeat(3,minmax(0,1fr))}
-  @media (max-width:720px){ .two,.three{grid-template-columns:1fr} }
-  .muted{color:var(--muted)}
-  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eef2ff;color:#3b82f6;border:1px solid #dbeafe}
-  .hidden{display:none!important}
-  .section-title{margin:18px 0 8px;font-size:15px;font-weight:700}
-  #comment{font-size:16px;margin-top:10px}
-  #question{font-size:18px}
-  .space{height:8px}
+:root {
+  --bg:#f7f7fb; --fg:#111; --muted:#555; --card:#fff; --accent:#2563eb;
+  --ok:#16a34a; --err:#dc2626; --shadow:0 8px 24px rgba(0,0,0,.08);
+  --radius:14px; --btn-padding:12px 20px; --btn-font:1.05em;
+}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+.wrap{max-width:980px;margin:16px auto;padding:0 16px;}
+h1{font-size:clamp(24px,3vw,30px);margin:0 0 12px;}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;width:100%;transition:all 0.3s ease;}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+.row > * {flex:0 0 auto;}
+button{border:0;border-radius:12px;padding:var(--btn-padding);cursor:pointer;font-size:var(--btn-font);transition:all 0.2s ease;}
+button.primary{background:var(--accent);color:#fff;}
+button.primary:hover{background:#1e40af;}
+button.ghost{background:transparent;border:1px solid #ddd;}
+button.ghost:hover{background:#f0f0f5;}
+button.danger{background:var(--err);color:#fff;}
+button.ok{background:var(--ok);color:#fff;}
+button:disabled{opacity:.5;cursor:not-allowed;}
+input,select,textarea{border:1px solid #ddd;border-radius:10px;padding:10px 12px;font-size:14px;outline:0;background:#fff;width:100%;}
+label{font-weight:600;font-size:13px;color:var(--muted);}
+.muted{color:var(--muted);}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eef2ff;color:#3b82f6;border:1px solid #dbeafe;}
+.hidden{display:none!important;}
+.section-title{margin:18px 0 8px;font-size:15px;font-weight:700;}
+#comment{font-size:16px;margin-top:10px;opacity:0;transition:opacity 0.5s;}
+#question{font-size:18px;margin-top:8px;transition:all 0.3s ease;}
+.correct{background:#dcfce7;color:var(--ok);padding:8px;border-radius:8px;margin-top:6px;animation:fadeIn 0.5s forwards;}
+.wrong{background:#fee2e2;color:var(--err);padding:8px;border-radius:8px;margin-top:6px;animation:fadeIn 0.5s forwards;}
+@keyframes fadeIn{0%{opacity:0;transform:translateY(-5px);}100%{opacity:1;transform:translateY(0);}}
+.topic-btn{flex:1 1 140px;background:#fff;border-radius:14px;box-shadow:var(--shadow);text-align:center;padding:16px;cursor:pointer;transition:all 0.3s ease;}
+.topic-btn:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 16px 40px rgba(0,0,0,.2);}
+.topic-btn span{font-size:2.2em;display:block;margin-bottom:8px;}
+@media(max-width:720px){.row,.topic-btn{flex-direction:column;}}
+.fixed-button{min-width:160px;text-align:center;transition:all 0.2s ease; position:relative;}
+.fixed-button.active{background:#1e40af;color:#fff;transform:scale(1.05);}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- Cabeçalho -->
-  <div class="card">
-    <div class="row" style="justify-content:space-between;align-items:center">
-      <div>
-        <h1 id="trainingTitle">Treinamento Professor Temporário SEDF — Pós-Edital</h1>
-        <div class="muted">Quiz protegido com modos: Master, Aluno e Demo</div>
+<!-- Header -->
+<div class="card">
+  <div class="row" style="justify-content:space-between;align-items:center;">
+    <div>
+      <h1 id="trainingTitle">Treinamento Professor SEDF - Pós Edital</h1>
+      <div class="muted">Quiz protegido com modos: Master, Aluno e Demo</div>
+    </div>
+    <div class="row">
+      <button id="toggleVoice" class="ghost fixed-button">🔊 Ativar Ler</button>
+      <button id="btnManualPassword" class="ghost fixed-button">🔑 Inserir Senha Manual</button>
+    </div>
+  </div>
+</div>
+
+<div class="space" style="height:12px;"></div>
+
+<div id="protectedContent" class="card hidden">
+
+  <!-- Info usuário/demo -->
+  <div id="userInfo" class="hidden">
+    <div class="section-title">Acesso do Aluno / Demo</div>
+    <div class="row">
+      <div style="flex:1">
+        <label>ID do seu dispositivo</label>
+        <div class="row">
+          <input id="userIdBox" readonly style="flex:1"/>
+          <button id="copyIdBtn">📋 Copiar</button>
+        </div>
       </div>
-      <div class="row">
-        <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
-        <button id="btnManage" class="ghost hidden">🛠️ Gerenciar</button>
+      <div style="flex:1">
+        <label>Contato do Master (WhatsApp)</label>
+        <div class="row">
+          <a id="waLink" target="_blank" class="primary" style="flex:1;text-decoration:none;padding:10px 14px;border-radius:10px;text-align:center;">
+            💬 WhatsApp Master
+          </a>
+        </div>
+        <div class="muted" style="margin-top:6px;font-size:13px;">
+          Envie seu ID ao Master para solicitar liberação.
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="space"></div>
-
-  <!-- Conteúdo protegido -->
-  <div id="protectedContent" class="card hidden">
-
-    <!-- Info usuário/demo -->
-    <div id="userInfo" class="hidden">
-      <div class="section-title">Acesso do Aluno / Demo</div>
-      <div class="grid two">
-        <div>
-          <label>ID do seu dispositivo</label>
-          <div class="row">
-            <input id="userIdBox" readonly />
-            <button id="copyIdBtn">📋 Copiar</button>
-          </div>
-        </div>
-        <div>
-          <label>Contato do Master (WhatsApp)</label>
-          <div class="row">
-            <a id="waLink" class="primary" target="_blank" style="text-decoration:none;display:inline-block;padding:10px 14px;border-radius:10px">
-              Abrir WhatsApp do Master
-            </a>
-            <span class="pill">+55 (61) 99925-1102</span>
-          </div>
-          <div class="muted" style="margin-top:6px">
-            Envie seu ID ao Master para solicitar liberação. Ao ser liberado via senha de aluno, esta seção some automaticamente.
-          </div>
-        </div>
-      </div>
+  <!-- Menu tópicos -->
+  <div id="menu" style="margin-top:16px">
+    <div class="section-title">Escolha o Tópico</div>
+    <label for="numQuestions">Quantas questões?</label>
+    <input type="number" id="numQuestions" min="1" value="10" style="max-width:100px;margin-bottom:12px;"/>
+    <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:16px;">
+      <div class="topic-btn primary" onclick="startQuiz('Lport')"><span>📚</span> Língua Portuguesa</div>
+      <div class="topic-btn primary" onclick="startQuiz('ride')"><span>📝</span> RIDE</div>
+      <div class="topic-btn primary" onclick="startQuiz('Legisla')"><span>⚖️</span> Legislação</div>
+      <div class="topic-btn primary" onclick="startQuiz('TemaEdu')"><span>🎓</span> Temas Educacionais</div>
+      <div class="topic-btn primary" onclick="startQuiz('Eduincl')"><span>🤝</span> Educação Inclusiva</div>
     </div>
-<!-- Menu de tópicos e ações -->
-    <div id="menu" class="grid two" style="margin-top:16px">
-      <div>
-        <div class="section-title">Escolha o Tópico</div>
-        <label for="numQuestions">Quantas questões?</label>
-        <input type="number" id="numQuestions" min="1" max="><" value="10" />
-        <div class="row" style="margin-top:10px;flex-wrap:wrap">
-          <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
-          <button onclick="startQuiz('ride')" class="primary">RIDE</button>
-          <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
-          <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
-          <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
-        </div>
-        <div id="demoNote" class="muted hidden" style="margin-top:8px">
-          🔒 Modo demo ativo: até <b>5 questões por tópico</b>.
-        </div>
-      </div>
+    <div id="demoNote" class="muted hidden" style="margin-top:8px;">ℹ️ Modo demo: até <b>5 questões por tópico</b>.</div>
+  </div>
 
-      <!-- Botões Master -->
-      <div id="adminButtons" class="hidden">
-        <div class="section-title">Ações do Master</div>
-        <div class="grid">
-          <button onclick="showAddQuestion()" class="ok">➕ Adicionar questão</button>
-          <button onclick="showAddBlock()" class="ok">➕ Adicionar bloco</button>
-        </div>
-      </div>
+  <!-- Quiz -->
+  <div id="quiz" class="hidden" style="margin-top:16px;">
+    <div class="row" style="justify-content:space-between;">
+      <div id="counter" class="pill"></div>
+      <button onclick="backToMenu()" class="ghost">↩ Voltar ao menu</button>
     </div>
-
-    <!-- Quiz -->
-    <div id="quiz" class="hidden" style="margin-top:16px">
-      <div class="row" style="justify-content:space-between">
-        <div id="counter" class="pill"></div>
-        <button onclick="backToMenu()" class="ghost">↩️ Voltar ao menu</button>
-      </div>
-      <div style="margin-top:10px">
-        <div id="question"></div>
-        <div class="row" style="margin-top:12px">
-          <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
-          <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
-        </div>
-        <div id="comment" class="muted"></div>
-        <div class="row" style="margin-top:12px">
-          <button onclick="nextQuestion()" class="primary">Próxima questão</button>
-        </div>
-      </div>
+    <div id="question"></div>
+    <div class="row" style="margin-top:12px;flex-wrap:wrap;">
+      <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
+      <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
     </div>
-
-    <!-- Resultados -->
-    <div id="result" class="hidden" style="margin-top:16px">
-      <h3>Fim do Quiz!</h3>
-      <p id="score"></p>
-      <button onclick="restartQuiz()" class="primary">Reiniciar</button>
+    <div id="comment"></div>
+    <div class="row" style="margin-top:12px;">
+      <button onclick="nextQuestion()" class="primary">Próxima questão</button>
     </div>
+  </div>
 
-    <!-- Formulários Master -->
-    <div id="addQuestionForm" class="hidden" style="margin-top:16px">
-      <div class="section-title">Adicionar nova questão</div>
-      <div class="grid two">
-        <div>
-          <label>Tópico</label>
-          <select id="newTopic">
-            <option value="Lport">Língua Portuguesa</option>
-            <option value="ride">RIDE</option>
-            <option value="Legisla">Legislação</option>
-            <option value="TemaEdu">Temas Educacionais</option>
-            <option value="Eduincl">Educação Inclusiva</option>
-          </select>
-        </div>
-        <div>
-          <label>Resposta correta?</label>
-          <select id="newQuestionAnswer">
-            <option value="true">Certo</option>
-            <option value="false">Errado</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid" style="margin-top:8px">
-        <div>
-          <label>Pergunta</label>
-          <textarea id="newQuestionText" rows="3"></textarea>
-        </div>
-        <div>
-          <label>Comentário</label>
-          <textarea id="newQuestionComment" rows="3"></textarea>
-        </div>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <button onclick="addQuestion()" class="ok">Adicionar</button>
-        <button onclick="hideAddQuestion()" class="ghost">Cancelar</button>
-      </div>
-    </div>
+  <!-- Resultados -->
+  <div id="result" class="hidden" style="margin-top:16px;">
+    <h3>Fim do Quiz!</h3>
+    <p id="score"></p>
+    <button onclick="restartQuiz()" class="primary">Reiniciar</button>
+  </div>
 
-    <div id="addQuestionBlockForm" class="hidden" style="margin-top:16px">
-      <div class="section-title">Adicionar bloco de questões</div>
-      <div class="grid two">
-        <div>
-          <label>Tópico</label>
-          <select id="newBlockTopic">
-            <option value="Lport">Língua Portuguesa</option>
-            <option value="ride">RIDE</option>
-            <option value="Legisla">Legislação</option>
-            <option value="TemaEdu">Temas Educacionais</option>
-            <option value="Eduincl">Educação Inclusiva</option>
-          </select>
-        </div>
-        <div>
-          <label>Formato</label>
-          <div class="muted" style="font-size:12px">
-            {q: 'Pergunta', a: true|false, c: 'Comentário'}, ... (uma por linha)
-          </div>
-        </div>
-      </div>
-      <div style="margin-top:8px">
-        <textarea id="newBlockQuestions" rows="6" placeholder="{q: 'Pergunta 1', a: true,  c: 'Comentário 1'},&#10;{q: 'Pergunta 2', a: false, c: 'Comentário 2'}"></textarea>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <button onclick="addQuestionBlock()" class="ok">Adicionar bloco</button>
-        <button onclick="hideAddBlock()" class="ghost">Cancelar</button>
-      </div>
-    </div>
+</div>
 
-  </div> <!-- /wrap -->
+<script src="controle.js"></script> <!-- banco externo -->
 
-<script src="controle.js"></script>
 <script>
-// ==== Inicialização ====
+// ===== Inicialização =====
 let userType = localStorage.getItem('userType') || 'demo';
 let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
-
-// Preencher ID e WhatsApp
 document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
-document.getElementById('copyIdBtn').addEventListener('click', () => {
-  const userId = document.getElementById('userIdBox').value;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(userId)
-      .then(() => alert('ID copiado!'))
-      .catch(() => fallbackCopy(userId));
-  } else {
-    fallbackCopy(userId);
-  }
-});
 
-function fallbackCopy(text) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    document.execCommand('copy') ? alert('ID copiado!') : alert('N�o foi poss�vel copiar.');
-  } catch (e) {
-    alert('Erro ao copiar. Copie manualmente.');
-  }
-  document.body.removeChild(textarea);
+document.getElementById('copyIdBtn').addEventListener('click', ()=>{
+  const uid = document.getElementById('userIdBox').value;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(uid).then(()=>alert('ID copiado!')).catch(()=>fallbackCopy(uid));
+  } else fallbackCopy(uid);
+});
+function fallbackCopy(text){
+  const ta = document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy')?alert('ID copiado!'):alert('Não foi possível copiar.');}
+  catch(e){alert('Erro ao copiar. Copie manualmente.');} document.body.removeChild(ta);
 }
 
 // Mostrar conteúdo protegido
-if(userType!=='master'){
-  document.getElementById('protectedContent').classList.remove('hidden');
-  document.getElementById('userInfo').classList.remove('hidden');
-  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
-}else{
-  document.getElementById('protectedContent').classList.remove('hidden');
-  document.getElementById('adminButtons').classList.remove('hidden');
-  document.getElementById('btnManage').classList.remove('hidden');
+if(userType!=='master'){ 
+  document.getElementById('protectedContent').classList.remove('hidden'); 
+  document.getElementById('userInfo').classList.remove('hidden'); 
+  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden'); 
 }
 
-// ==== Voz ====
+// ===== Voz =====
 let voiceEnabled=false;
 document.getElementById('toggleVoice').onclick = ()=>{
-  voiceEnabled = !voiceEnabled;
-  document.getElementById('toggleVoice').innerText = voiceEnabled?'🔈 Desativar Ler':'🔊 Ativar Ler';
+  voiceEnabled=!voiceEnabled;
+  document.getElementById('toggleVoice').classList.toggle('active',voiceEnabled);
+  document.getElementById('toggleVoice').innerText = voiceEnabled?'🔊 Desativar Ler':'🔊 Ativar Ler';
 };
 
-// ==== Quiz ====
+// ===== Senha manual =====
+document.getElementById('btnManualPassword').onclick = ()=>{
+  const pw = prompt("Digite a senha de liberação:");
+  if(!pw) return;
+  if(typeof masterPassword!=='undefined' && pw===masterPassword){
+    alert("Senha correta! Acesso liberado.");
+    userType='aluno';
+    localStorage.setItem('userType','aluno');
+  } else {
+    alert("Senha inválida. Solicite ao Master a senha correta.");
+  }
+};
+
+// ===== Quiz =====
 let quizCurrent=[], currentIndex=0, score=0;
-const maxDemo = 5;
+const maxDemo=5;
+let answeredThis=false;
 
-function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
-
+function shuffleArray(arr){return arr.sort(()=>Math.random()-0.5);}
 function startQuiz(topic){
-  let numQ = parseInt(document.getElementById('numQuestions').value)||10;
-  quizCurrent = window.quizData[topic] || [];
-  if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
+  if(!window.quizData || !window.quizData[topic] || window.quizData[topic].length===0){alert('Nenhuma questão disponível para este tópico.'); return;}
+  let numQ=parseInt(document.getElementById('numQuestions').value)||10;
+  quizCurrent = window.quizData[topic]; 
+  if(userType==='demo') quizCurrent=quizCurrent.slice(0,maxDemo);
   quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
   currentIndex=0; score=0;
-  showQuestion();
-}
-
-function showQuestion(){
-  if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
-  const q = quizCurrent[currentIndex];
+  document.getElementById('menu').classList.add('hidden');
   document.getElementById('quiz').classList.remove('hidden');
   document.getElementById('result').classList.add('hidden');
+  showQuestion();
+}
+function showQuestion(){
+  if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
+  const q=quizCurrent[currentIndex];
   document.getElementById('question').innerText = q.q;
-  document.getElementById('comment').innerText = '';
+  const commentBox=document.getElementById('comment'); commentBox.innerHTML=''; commentBox.style.opacity=0;
   document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
-  if(voiceEnabled){
-    let u = new SpeechSynthesisUtterance(q.q);
-    u.lang='pt-BR'; u.rate=1.5;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-  }
+  answeredThis=false;
+  if(voiceEnabled){let u=new SpeechSynthesisUtterance(q.q); u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);}
 }
-
 function answer(val){
-  const q = quizCurrent[currentIndex];
-  document.getElementById('comment').innerText = q.c;
-  if(q.a===val) score++;
-  if(voiceEnabled){
-    let u = new SpeechSynthesisUtterance(q.c);
-    u.lang='pt-BR'; u.rate=1.5;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-  }
+  if(answeredThis) return; answeredThis=true;
+  const q=quizCurrent[currentIndex];
+  const commentBox=document.getElementById('comment');
+  if(q.a===val){ score++; commentBox.innerHTML=`<div class="correct">✔ Você acertou! ${q.c}</div>`; }
+  else { commentBox.innerHTML=`<div class="wrong">✖ Você errou! ${q.c}</div>`; }
+  commentBox.style.opacity=1;
+  if(voiceEnabled){let u=new SpeechSynthesisUtterance((q.a===val?'Você acertou! ':'Você errou! ')+q.c); u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);}
 }
-
 function nextQuestion(){ currentIndex++; showQuestion(); }
-
-function endQuiz(){
-  document.getElementById('quiz').classList.add('hidden');
-  document.getElementById('result').classList.remove('hidden');
-  document.getElementById('score').innerText = `Você acertou ${score} de ${quizCurrent.length} questões.`;
-}
-
-function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').classList.add('hidden'); }
-
-// ==== Master ====
-function addQuestion(){
-  const topic=document.getElementById('newTopic').value;
-  const q=document.getElementById('newQuestionText').value.trim();
-  const c=document.getElementById('newQuestionComment').value.trim();
-  const a=document.getElementById('newQuestionAnswer').value==='true';
-  if(q) { window.quizData[topic].push({q,a,c}); hideAddQuestion(); alert('Questão adicionada!'); }
-}
-function showAddQuestion(){document.getElementById('addQuestionForm').classList.remove('hidden');}
-function hideAddQuestion(){document.getElementById('addQuestionForm').classList.add('hidden');}
-
-function addQuestionBlock(){
-  const topic=document.getElementById('newBlockTopic').value;
-  try{
-    const lines=document.getElementById('newBlockQuestions').value.split('\n').filter(l=>l.trim());
-    for(const l of lines){ const obj=eval('('+l+')'); window.quizData[topic].push(obj); }
-    hideAddBlock(); alert('Bloco adicionado!');
-  }catch(e){alert('Erro ao adicionar bloco');}
-}
-function showAddBlock(){document.getElementById('addQuestionBlockForm').classList.remove('hidden');}
-function hideAddBlock(){document.getElementById('addQuestionBlockForm').classList.add('hidden');}
-function backToMenu(){
-  document.getElementById('quiz').classList.add('hidden');
-  document.getElementById('result').classList.add('hidden');
-}
+function endQuiz(){ document.getElementById('quiz').classList.add('hidden'); document.getElementById('result').classList.remove('hidden'); document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`; }
+function restartQuiz(){currentIndex=0; score=0; document.getElementById('result').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');}
+function backToMenu(){document.getElementById('quiz').classList.add('hidden'); document.getElementById('result').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden');}
 </script>
 </body>
 </html>

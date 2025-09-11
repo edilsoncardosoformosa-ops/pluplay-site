@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Treinamento Professor Temporário SEDF — Mod</title>
+<title>Treinamento Professor SEDF - Pós Edital</title>
 <style>
 body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; background:#f4f4f9; color:#333; }
 button { margin:6px; padding:12px 24px; font-size:1.1em; border-radius:12px; cursor:pointer; }
@@ -11,36 +11,44 @@ button.primary { background:#2563eb; color:#fff; border:none; }
 button.ghost { background:#eee; border:1px solid #ccc; }
 button.ok { background:#16a34a; color:#fff; border:none; }
 button.danger { background:#dc2626; color:#fff; border:none; }
-#quiz, #result, #protectedContent, #addQuestionForm, #addQuestionBlockForm { display:none; margin-top:16px; }
-input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd; width:90%; margin-top:4px; }
+button.whatsapp { background:#25d366; color:#fff; border:none; }
+#quiz, #result, #protectedContent { display:none; margin-top:16px; }
+input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd; margin-top:4px; }
+input.short { width:180px; text-align:center; }
+textarea { width:90%; }
 .pill { display:inline-block; padding:2px 8px; background:#eef2ff; border-radius:999px; color:#2563eb; margin:4px; }
 .muted { color:#666; font-size:0.9em; }
 .row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
 .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
+.correct { color:#16a34a; font-weight:bold; }
+.incorrect { color:#dc2626; font-weight:bold; }
 </style>
 </head>
 <body>
 
 <div id="protectedContent" class="card">
-  <h1>Treinamento Professor Temporário SEDF — Mod</h1>
+  <h1>Treinamento Professor SEDF - Pós Edital</h1>
   <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
 
   <div id="userInfo" class="card">
     <label>ID do dispositivo</label>
     <div class="row">
-      <input id="userIdBox" readonly />
+      <input id="userIdBox" readonly class="short"/>
       <button id="copyIdBtn" class="ghost">📋 Copiar</button>
     </div>
     <label>Contato Master (WhatsApp)</label>
     <div class="row">
-      <a id="waLink" target="_blank" class="primary" style="text-decoration:none; padding:10px 14px; border-radius:10px;">Abrir WhatsApp</a>
+      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">📱 Abrir WhatsApp</a>
+    </div>
+    <div style="margin-top:10px;">
+      <button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button>
     </div>
     <div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção some.</div>
   </div>
 
   <div id="menu" class="card">
     <label for="numQuestions">Quantas questões?</label>
-    <input type="number" id="numQuestions" min="1" max="><" value="10">
+    <input type="number" id="numQuestions" min="1" value="10" class="short">
     <div class="row" style="margin-top:10px; flex-wrap:wrap;">
       <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
       <button onclick="startQuiz('ride')" class="primary">RIDE</button>
@@ -54,12 +62,12 @@ input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd;
 
 <div id="quiz" class="card">
   <div id="counter" class="pill"></div>
-  <div id="question" style="margin:12px 0;"></div>
+  <div id="question" style="margin:12px 0; font-weight:bold;"></div>
   <div class="row">
     <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
     <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
   </div>
-  <div id="comment" class="muted"></div>
+  <div id="comment" class="muted" style="margin-top:10px;"></div>
   <div class="row" style="margin-top:12px;">
     <button onclick="nextQuestion()" class="primary">Próxima questão</button>
     <button onclick="backToMenu()" class="ghost">Voltar ao menu</button>
@@ -79,15 +87,14 @@ let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
 document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
+
 document.getElementById('copyIdBtn').addEventListener('click', () => {
   const userId = document.getElementById('userIdBox').value;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(userId)
       .then(() => alert('ID copiado!'))
       .catch(() => fallbackCopy(userId));
-  } else {
-    fallbackCopy(userId);
-  }
+  } else fallbackCopy(userId);
 });
 
 function fallbackCopy(text) {
@@ -95,12 +102,21 @@ function fallbackCopy(text) {
   textarea.value = text;
   document.body.appendChild(textarea);
   textarea.select();
-  try {
-    document.execCommand('copy') ? alert('ID copiado!') : alert('N�o foi poss�vel copiar.');
-  } catch (e) {
-    alert('Erro ao copiar. Copie manualmente.');
-  }
+  document.execCommand('copy');
   document.body.removeChild(textarea);
+  alert('ID copiado!');
+}
+
+function enterPassword(){
+  let senha = prompt("Digite a senha fornecida pelo Master:");
+  if(senha === "12345"){ // <- troque para sua senha
+    userType="full";
+    localStorage.setItem("userType","full");
+    alert("Acesso liberado!");
+    document.getElementById("protectedContent").style.display="none";
+  } else {
+    alert("Senha incorreta.");
+  }
 }
 
 if(userType!=='master'){
@@ -110,10 +126,13 @@ if(userType!=='master'){
 
 // Voz
 let voiceEnabled=false;
-document.getElementById('toggleVoice').onclick = ()=>{ voiceEnabled=!voiceEnabled; document.getElementById('toggleVoice').innerText=voiceEnabled?'🔈 Desativar Ler':'🔊 Ativar Ler'; };
+document.getElementById('toggleVoice').onclick = ()=>{ 
+  voiceEnabled=!voiceEnabled; 
+  document.getElementById('toggleVoice').innerText=voiceEnabled?'🔇 Desativar Ler':'🔊 Ativar Ler'; 
+};
 
 // Quiz
-let quizCurrent=[], currentIndex=0, score=0;
+let quizCurrent=[], currentIndex=0, score=0, answered=false;
 const maxDemo = 5;
 
 function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
@@ -130,6 +149,7 @@ function startQuiz(topic){
 function showQuestion(){
   if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
   const q = quizCurrent[currentIndex];
+  answered=false;
   document.getElementById('quiz').style.display='block';
   document.getElementById('question').innerText = q.q;
   document.getElementById('comment').innerText = '';
@@ -141,11 +161,14 @@ function showQuestion(){
 }
 
 function answer(val){
+  if(answered) return;
+  answered=true;
   const q = quizCurrent[currentIndex];
-  document.getElementById('comment').innerText = q.c;
+  let result = (q.a===val) ? "Você acertou!" : "Você errou!";
+  document.getElementById('comment').innerHTML = `<span class="${q.a===val?'correct':'incorrect'}">${result} ${q.c}</span>`;
   if(q.a===val) score++;
   if(voiceEnabled){
-    let u = new SpeechSynthesisUtterance(q.c);
+    let u = new SpeechSynthesisUtterance(result + " " + q.c);
     u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   }
 }
