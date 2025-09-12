@@ -3,85 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Curso 2</title>
+<title>Curso 2 - Quiz</title>
 <style>
-:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}
+:root{--p:#1E90FF;--bg:#f4f4f9;--fg:#333}
 body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
 header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
 header img{height:44px}
 main{padding:20px}
-.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
-button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}
-button.ghost{background:#eee;color:#222}
-.grid{display:grid;gap:12px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
-label{font-weight:600}
-.muted{color:#666;font-size:.95rem}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff;margin-top:8px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
 .hidden{display:none!important}
+.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
 </style>
 </head>
 <body>
 <header>
-  <img src="logomarca.png" alt="Logo Curso 2">
-  <span class="muted">Curso 2</span>
+  <img src="logomarca.png" alt="Logo Plug & Play">
+  <span>Curso 2</span>
 </header>
 
 <main>
 <div class="card">
-  <h3 id="question">Carregando...</h3>
-  <p id="comment"></p>
-  <div class="row">
-    <button id="prevBtn">Anterior</button>
-    <button id="nextBtn">Próxima</button>
-  </div>
-  <p id="counter" class="muted"></p>
+  <label>Filtrar por tópico</label>
+  <select id="filterTopic">
+    <option value="">Todos</option>
+    <option value="Lport">Língua Portuguesa</option>
+    <option value="ride">RIDE</option>
+    <option value="Legisla">Legislação</option>
+    <option value="TemaEdu">Temas Educacionais</option>
+    <option value="Eduincl">Educação Inclusiva</option>
+  </select>
+  <label>Pesquisar</label>
+  <input id="searchQuestion" placeholder="Digite palavra-chave">
 </div>
-<div class="card">
-  <button id="voiceBtn">🔊 Ouvir Questão</button>
+
+<div id="quizContainer" class="card">
+  <div id="questionsList"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-document.addEventListener('DOMContentLoaded', async ()=>{
-  try {
-    const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
-    const SUPABASE_KEY = 'sua_chave_publica';
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
+const SUPABASE_KEY = 'sua_chave_publica';
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let quizCurrent=[], currentIndex=0, voiceEnabled=true;
+async function renderQuestionsList(){
+  const container = document.getElementById('questionsList'); container.innerHTML='';
+  const search = (document.getElementById('searchQuestion')?.value||'').toLowerCase();
+  const filterTopic = document.getElementById('filterTopic')?.value||'';
+  const { data: questoes, error } = await supabase.from('questoes').select();
+  if(error){ alert('Erro ao carregar questões'); return; }
+  questoes.forEach(qObj=>{
+    if(filterTopic && qObj.bloco_id!==filterTopic) return;
+    if(search && !qObj.enunciado.toLowerCase().includes(search) && !(qObj.comentario||'').toLowerCase().includes(search)) return;
+    const row = document.createElement('div'); row.className='row';
+    const qDiv = document.createElement('div'); qDiv.textContent=qObj.enunciado;
+    const aDiv = document.createElement('div'); aDiv.textContent=qObj.correta?'✔':'✖';
+    row.appendChild(qDiv); row.appendChild(aDiv);
+    container.appendChild(row);
+  });
+}
 
-    // Carregar questões do bloco ride (Curso 2)
-    const { data, error } = await supabase.from('questoes').select().eq('bloco_id','ride');
-    if(error){ alert('Erro ao carregar questões'); console.warn(error); return; }
-    quizCurrent = data;
-
-    const questionEl = document.getElementById('question');
-    const commentEl = document.getElementById('comment');
-    const counterEl = document.getElementById('counter');
-
-    function showQuestion(){
-      if(currentIndex >= quizCurrent.length){ questionEl.innerText='Fim do Quiz'; commentEl.innerText=''; counterEl.innerText=''; return; }
-      const q = quizCurrent[currentIndex];
-      questionEl.innerText = q.enunciado;
-      commentEl.innerText = '';
-      counterEl.innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
-    }
-
-    document.getElementById('nextBtn').addEventListener('click', ()=>{ currentIndex++; showQuestion(); });
-    document.getElementById('prevBtn').addEventListener('click', ()=>{ if(currentIndex>0) currentIndex--; showQuestion(); });
-
-    document.getElementById('voiceBtn').addEventListener('click', ()=>{
-      if(!voiceEnabled || !quizCurrent[currentIndex]) return;
-      const utter = new SpeechSynthesisUtterance(quizCurrent[currentIndex].enunciado);
-      utter.rate = 1.2;
-      speechSynthesis.speak(utter);
-    });
-
-    showQuestion();
-
-  } catch(e){ console.error('Erro ao iniciar Curso 2', e); alert('Erro ao iniciar curso.'); }
-});
+document.getElementById('searchQuestion')?.addEventListener('input', renderQuestionsList);
+document.getElementById('filterTopic')?.addEventListener('change', renderQuestionsList);
+renderQuestionsList();
 </script>
 </main>
 </body>

@@ -18,92 +18,161 @@ button.ghost{background:#eee;color:#222}
 input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
 label{font-weight:600}
 .muted{color:#666;font-size:.95rem}
-.pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}
 .hidden{display:none!important}
-@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
-<header id="masterHeader">
+<header>
   <img src="logomarca.png" alt="Logo Plug & Play">
   <span class="muted">Master Admin</span>
 </header>
 
 <main>
-<div id="appControls">
+<div id="appControls" class="card">
   <button id="btnAddQ">➕ Adicionar Questão</button>
   <button id="btnAddBlock">➕ Adicionar Bloco</button>
   <button id="btnManageUsers">👤 Gerenciar Usuários</button>
   <button id="btnManageQs">📋 Gerenciar Questões</button>
 </div>
 
-<!-- Formulários e Cards permanecem iguais, preservando layout -->
+<!-- Formulários ocultos -->
+<div id="addQuestionForm" class="card hidden">
+  <h3>Adicionar Questão</h3>
+  <label>Tópico</label>
+  <select id="newTopic">
+    <option value="Lport">Língua Portuguesa</option>
+    <option value="ride">RIDE</option>
+    <option value="Legisla">Legislação</option>
+    <option value="TemaEdu">Temas Educacionais</option>
+    <option value="Eduincl">Educação Inclusiva</option>
+  </select>
+  <label>Pergunta</label>
+  <textarea id="newQuestionText" rows="3"></textarea>
+  <label>Comentário</label>
+  <textarea id="newQuestionComment" rows="2"></textarea>
+  <label>Resposta correta</label>
+  <select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
+  <div class="row" style="margin-top:6px">
+    <button id="saveQuestionBtn">Salvar</button>
+    <button onclick="hideAddQuestion()" class="ghost">Cancelar</button>
+  </div>
+</div>
 
-<!-- Scripts -->
+<div id="addQuestionBlockForm" class="card hidden">
+  <h3>Adicionar Bloco</h3>
+  <label>Tópico</label>
+  <select id="newBlockTopic">
+    <option value="Lport">Língua Portuguesa</option>
+    <option value="ride">RIDE</option>
+    <option value="Legisla">Legislação</option>
+    <option value="TemaEdu">Temas Educacionais</option>
+    <option value="Eduincl">Educação Inclusiva</option>
+  </select>
+  <label>Formato (uma por linha, JSON)</label>
+  <textarea id="newBlockQuestions" rows="6" placeholder='{ "q":"Pergunta", "a":true, "c":"Comentário" }'></textarea>
+  <div class="row" style="margin-top:8px">
+    <button id="saveBlockBtn">Adicionar Bloco</button>
+    <button onclick="hideAddBlock()" class="ghost">Cancelar</button>
+  </div>
+</div>
+
+<div id="manageUsers" class="card hidden">
+  <h3>Gerenciar Usuários</h3>
+  <ul id="userList"></ul>
+  <label>ID manual</label>
+  <input id="manualUserId" placeholder="ID do usuário">
+  <label>Nota</label>
+  <input id="manualUserNote" placeholder="Nome/Observação">
+  <div class="row" style="margin-top:8px">
+    <button id="addManualUserBtn">Adicionar</button>
+    <button onclick="hideManageUsers()" class="ghost">Fechar</button>
+  </div>
+</div>
+
+<div id="manageQuestions" class="card hidden">
+  <h3>Gerenciar Questões</h3>
+  <label>Filtrar por tópico</label>
+  <select id="filterTopic">
+    <option value="">Todos</option>
+    <option value="Lport">Língua Portuguesa</option>
+    <option value="ride">RIDE</option>
+    <option value="Legisla">Legislação</option>
+    <option value="TemaEdu">Temas Educacionais</option>
+    <option value="Eduincl">Educação Inclusiva</option>
+  </select>
+  <label>Pesquisar</label>
+  <input id="searchQuestion" placeholder="Digite palavra-chave">
+  <div id="questionsList" class="grid" style="margin-top:8px;"></div>
+  <div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function(){
-  try {
-    const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
-    const SUPABASE_KEY = 'sua_chave_publica';
-    const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
+const SUPABASE_KEY = 'sua_chave_publica';
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Funções para mostrar/ocultar formulários
-    const hideAddQuestion = ()=>document.getElementById('addQuestionForm')?.classList.add('hidden');
-    const hideAddBlock = ()=>document.getElementById('addQuestionBlockForm')?.classList.add('hidden');
-    const hideManageUsers = ()=>document.getElementById('manageUsers')?.classList.add('hidden');
-    const hideManageQuestions = ()=>document.getElementById('manageQuestions')?.classList.add('hidden');
-    const hideEditModal = ()=>document.getElementById('editQuestionModal')?.classList.add('hidden');
+const hideAddQuestion = ()=>document.getElementById('addQuestionForm').classList.add('hidden');
+const hideAddBlock = ()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
+const hideManageUsers = ()=>document.getElementById('manageUsers').classList.add('hidden');
+const hideManageQuestions = ()=>document.getElementById('manageQuestions').classList.add('hidden');
 
-    document.getElementById('btnAddQ')?.addEventListener('click', ()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
-    document.getElementById('btnAddBlock')?.addEventListener('click', ()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
-    document.getElementById('btnManageUsers')?.addEventListener('click', ()=>{document.getElementById('manageUsers').classList.remove('hidden'); renderUserList();});
-    document.getElementById('btnManageQs')?.addEventListener('click', ()=>{document.getElementById('manageQuestions').classList.remove('hidden'); renderQuestionsList();});
+document.getElementById('btnAddQ').addEventListener('click', ()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
+document.getElementById('btnAddBlock').addEventListener('click', ()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
+document.getElementById('btnManageUsers').addEventListener('click', ()=>{document.getElementById('manageUsers').classList.remove('hidden'); renderUserList();});
+document.getElementById('btnManageQs').addEventListener('click', ()=>{document.getElementById('manageQuestions').classList.remove('hidden'); renderQuestionsList();});
 
-    // Função de renderização de usuários
-    async function renderUserList(){
-      let ul = document.getElementById('userList'); if(!ul) return; ul.innerHTML = '';
-      const { data: users, error } = await supabase.from('usuarios').select();
-      if(error){ console.warn('Erro ao carregar usuários', error); return; }
-      users.forEach(u=>{
-        let li = document.createElement('li');
-        li.textContent=`${u.id} - ${u.nome}`;
-        let btnDel = document.createElement('button');
-        btnDel.textContent='Revogar'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
-        btnDel.onclick = async ()=>{
-          if(confirm('Revogar usuário?')){
-            await supabase.from('usuarios').delete().eq('id', u.id);
-            renderUserList();
-          }
-        };
-        li.appendChild(btnDel); ul.appendChild(li);
-      });
-    }
-
-    // Função de renderização de questões
-    async function renderQuestionsList(){
-      let container = document.getElementById('questionsList'); if(!container) return; container.innerHTML='';
-      const search = (document.getElementById('searchQuestion')?.value||'').toLowerCase();
-      const filterTopic = document.getElementById('filterTopic')?.value||'';
-      const { data: questoes, error } = await supabase.from('questoes').select();
-      if(error){ console.warn('Erro ao carregar questões', error); return; }
-      questoes.forEach(qObj=>{
-        if(filterTopic && qObj.bloco_id!==filterTopic) return;
-        if(search && !qObj.enunciado.toLowerCase().includes(search) && !(qObj.comentario||'').toLowerCase().includes(search)) return;
-        let row = document.createElement('div'); row.className='row';
-        let left = document.createElement('div'); left.textContent=qObj.enunciado;
-        let right = document.createElement('div'); right.textContent=qObj.correta?'✔':'✖';
-        row.appendChild(left); row.appendChild(right); container.appendChild(row);
-      });
-    }
-
-    document.getElementById('searchQuestion')?.addEventListener('input', renderQuestionsList);
-    document.getElementById('filterTopic')?.addEventListener('change', renderQuestionsList);
-
-    renderUserList();
-    renderQuestionsList();
-  } catch(e){ console.error('Erro geral na inicialização do Master', e); }
+// Adicionar questão
+document.getElementById('saveQuestionBtn').addEventListener('click', async () => {
+  const t = document.getElementById('newTopic').value,
+        q = document.getElementById('newQuestionText').value,
+        c = document.getElementById('newQuestionComment').value,
+        a = document.getElementById('newQuestionAnswer').value==='true';
+  if(!q){ alert('Digite a pergunta'); return; }
+  const { error } = await supabase.from('questoes').insert([{ enunciado:q, correta:a, comentario:c, bloco_id:t }]);
+  if(error){ alert('Erro: '+error.message); return; }
+  alert('Questão adicionada!');
+  hideAddQuestion();
+  renderQuestionsList();
 });
+
+// Renderizar usuários
+async function renderUserList(){
+  const ul = document.getElementById('userList'); ul.innerHTML='';
+  const { data: users, error } = await supabase.from('usuarios').select();
+  if(error){ alert('Erro ao carregar usuários'); return; }
+  users.forEach(u=>{
+    const li = document.createElement('li'); li.textContent=`${u.id} - ${u.nome}`;
+    const btnDel = document.createElement('button'); btnDel.textContent='Revogar'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
+    btnDel.onclick=async()=>{ if(confirm('Revogar usuário?')){ await supabase.from('usuarios').delete().eq('id', u.id); renderUserList(); } };
+    li.appendChild(btnDel); ul.appendChild(li);
+  });
+}
+
+// Renderizar questões
+async function renderQuestionsList(){
+  const container = document.getElementById('questionsList'); container.innerHTML='';
+  const search = (document.getElementById('searchQuestion')?.value||'').toLowerCase();
+  const filterTopic = document.getElementById('filterTopic')?.value||'';
+  const { data: questoes, error } = await supabase.from('questoes').select();
+  if(error){ alert('Erro ao carregar questões'); return; }
+  questoes.forEach(qObj=>{
+    if(filterTopic && qObj.bloco_id!==filterTopic) return;
+    if(search && !qObj.enunciado.toLowerCase().includes(search) && !(qObj.comentario||'').toLowerCase().includes(search)) return;
+    const row = document.createElement('div'); row.className='row';
+    const left = document.createElement('div'); left.textContent=qObj.enunciado;
+    const right = document.createElement('div'); right.textContent=qObj.correta?'✔':'✖';
+    row.appendChild(left); row.appendChild(right);
+    container.appendChild(row);
+  });
+}
+
+document.getElementById('searchQuestion')?.addEventListener('input', renderQuestionsList);
+document.getElementById('filterTopic')?.addEventListener('change', renderQuestionsList);
+
+// Inicializa
+renderQuestionsList();
+renderUserList();
 </script>
 </main>
 </body>
