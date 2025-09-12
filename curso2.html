@@ -3,70 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Curso 2 - Quiz</title>
+<title>Curso 2</title>
 <style>
-:root{--p:#1E90FF;--bg:#f4f4f9;--fg:#333}
+:root{--p:#FFA500;--bg:#f4f4f9;--fg:#333}
 body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
-header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center}
 header img{height:44px}
 main{padding:20px}
-button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff;margin-top:8px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
-.hidden{display:none!important}
-.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
+button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff;margin:4px 0}
+#question{margin:16px 0;font-weight:600}
+#comment{margin-top:8px;color:#555}
+.row{display:flex;gap:8px}
 </style>
 </head>
 <body>
 <header>
-  <img src="logomarca.png" alt="Logo Plug & Play">
+  <img src="logomarca.png" alt="Logo">
   <span>Curso 2</span>
 </header>
-
 <main>
-<div class="card">
-  <label>Filtrar por tópico</label>
-  <select id="filterTopic">
-    <option value="">Todos</option>
-    <option value="Lport">Língua Portuguesa</option>
-    <option value="ride">RIDE</option>
-    <option value="Legisla">Legislação</option>
-    <option value="TemaEdu">Temas Educacionais</option>
-    <option value="Eduincl">Educação Inclusiva</option>
-  </select>
-  <label>Pesquisar</label>
-  <input id="searchQuestion" placeholder="Digite palavra-chave">
+<div id="counter"></div>
+<div id="question"></div>
+<div id="comment"></div>
+<div class="row">
+  <button id="btnTrue">Certo</button>
+  <button id="btnFalse">Errado</button>
 </div>
-
-<div id="quizContainer" class="card">
-  <div id="questionsList"></div>
-</div>
+<button id="btnNext" style="margin-top:12px">Próxima</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
-const SUPABASE_KEY = 'sua_chave_publica';
+const SUPABASE_KEY = 'sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1';
 const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function renderQuestionsList(){
-  const container = document.getElementById('questionsList'); container.innerHTML='';
-  const search = (document.getElementById('searchQuestion')?.value||'').toLowerCase();
-  const filterTopic = document.getElementById('filterTopic')?.value||'';
-  const { data: questoes, error } = await supabase.from('questoes').select();
+let quizCurrent = [], currentIndex=0, answered=false;
+
+// Função de carregar questões do Bloco ride
+async function loadQuestions(){
+  const { data: qs, error } = await supabase.from('questoes').select().eq('bloco_id','ride');
   if(error){ alert('Erro ao carregar questões'); return; }
-  questoes.forEach(qObj=>{
-    if(filterTopic && qObj.bloco_id!==filterTopic) return;
-    if(search && !qObj.enunciado.toLowerCase().includes(search) && !(qObj.comentario||'').toLowerCase().includes(search)) return;
-    const row = document.createElement('div'); row.className='row';
-    const qDiv = document.createElement('div'); qDiv.textContent=qObj.enunciado;
-    const aDiv = document.createElement('div'); aDiv.textContent=qObj.correta?'✔':'✖';
-    row.appendChild(qDiv); row.appendChild(aDiv);
-    container.appendChild(row);
-  });
+  quizCurrent = qs;
+  currentIndex=0;
+  showQuestion();
 }
 
-document.getElementById('searchQuestion')?.addEventListener('input', renderQuestionsList);
-document.getElementById('filterTopic')?.addEventListener('change', renderQuestionsList);
-renderQuestionsList();
+function showQuestion(){
+  if(currentIndex>=quizCurrent.length){ alert('Fim do quiz!'); return; }
+  answered=false;
+  const q = quizCurrent[currentIndex];
+  document.getElementById('question').innerText=q.enunciado;
+  document.getElementById('comment').innerText='';
+  document.getElementById('counter').innerText=`Questão ${currentIndex+1} de ${quizCurrent.length}`;
+}
+
+function answerQuestion(val){
+  if(answered) return;
+  const q = quizCurrent[currentIndex];
+  answered=true;
+  const correct = q.correta;
+  document.getElementById('comment').innerText = val===correct ? '✔ ' + (q.comentario||'Correto') : '✖ ' + (q.comentario||'Errado');
+}
+
+document.getElementById('btnTrue').addEventListener('click', ()=>answerQuestion(true));
+document.getElementById('btnFalse').addEventListener('click', ()=>answerQuestion(false));
+document.getElementById('btnNext').addEventListener('click', ()=>{
+  if(!answered) return alert('Responda primeiro!');
+  currentIndex++;
+  showQuestion();
+});
+
+loadQuestions();
 </script>
 </main>
 </body>
