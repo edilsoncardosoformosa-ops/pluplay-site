@@ -1,9 +1,8 @@
 // ===== Variáveis do Quiz =====
 let quizCurrent = [], currentIndex = 0, score = 0, answered = false;
 const maxDemo = 5;
-let userType = localStorage.getItem('userType') || 'demo';
 
-// ===== Funções =====
+// ===== Inicia Quiz =====
 async function startQuiz(blocoKey) {
     const bloco_id = blocoMap[blocoKey];
     if(!bloco_id){
@@ -12,21 +11,24 @@ async function startQuiz(blocoKey) {
     }
 
     // Busca questões do Supabase
-    try {
-        let questoes = await fetchQuizData(blocoKey);
-        if(userType==='demo') questoes = questoes.slice(0, maxDemo);
-        quizCurrent = shuffleArray(questoes);
-        currentIndex = 0;
-        score = 0;
-        showQuestion();
-        document.getElementById('quiz').style.display='block';
-        document.getElementById('menu').style.display='none';
-    } catch(err){
-        console.error(err);
-        alert("Erro ao carregar questões. Veja console.");
+    let questoes = await fetchQuizData(blocoKey);
+    if(userType === 'demo') questoes = questoes.slice(0, maxDemo);
+
+    if(questoes.length === 0){
+        alert("Nenhuma questão encontrada para este tópico.");
+        return;
     }
+
+    quizCurrent = shuffleArray(questoes);
+    currentIndex = 0;
+    score = 0;
+
+    showQuestion();
+    document.getElementById('quiz').style.display='block';
+    document.getElementById('menu').style.display='none';
 }
 
+// ===== Funções Auxiliares =====
 function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
 
 function showQuestion(){
@@ -48,15 +50,18 @@ function answer(val){
 }
 
 function nextQuestion(){ currentIndex++; showQuestion(); }
+
 function backToMenu(){
     document.getElementById('quiz').style.display='none';
     document.getElementById('menu').style.display='block';
 }
+
 function endQuiz(){
     document.getElementById('quiz').style.display='none';
     document.getElementById('result').style.display='block';
     document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`;
 }
+
 function restartQuiz(){
     currentIndex=0; score=0;
     document.getElementById('result').style.display='none';
