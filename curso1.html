@@ -11,11 +11,7 @@ button.primary { background:#2563eb; color:#fff; border:none; }
 button.ghost { background:#eee; border:1px solid #ccc; }
 button.ok { background:#16a34a; color:#fff; border:none; }
 button.danger { background:#dc2626; color:#fff; border:none; }
-button.whatsapp { background:#25d366; color:#fff; border:none; }
-#quiz, #result, #protectedContent { display:none; margin-top:16px; }
-input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd; margin-top:4px; }
-input.short { width:180px; text-align:center; }
-textarea { width:90%; }
+#quiz, #result, #menu { display:none; margin-top:16px; }
 .pill { display:inline-block; padding:2px 8px; background:#eef2ff; border-radius:999px; color:#2563eb; margin:4px; }
 .muted { color:#666; font-size:0.9em; }
 .row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
@@ -26,37 +22,16 @@ textarea { width:90%; }
 </head>
 <body>
 
-<div id="protectedContent" class="card">
-  <h1>Treinamento Professor SEDF - Pós Edital</h1>
-  <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
-
-  <div id="userInfo" class="card">
-    <label>ID do dispositivo</label>
-    <div class="row">
-      <input id="userIdBox" readonly class="short"/>
-      <button id="copyIdBtn" class="ghost">📋 Copiar</button>
-    </div>
-    <label>Contato Master (WhatsApp)</label>
-    <div class="row">
-      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">💬 Abrir WhatsApp</a>
-    </div>
-    <div style="margin-top:10px;">
-      <button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button>
-    </div>
-    <div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção some.</div>
-  </div>
-
-  <div id="menu" class="card">
-    <label for="numQuestions">Quantas questões?</label>
-    <input type="number" id="numQuestions" min="1" value="10" class="short">
-    <div class="row" style="margin-top:10px; flex-wrap:wrap;">
-      <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
-      <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
-      <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
-      <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
-      <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
-    </div>
-    <div id="demoNote" class="muted hidden">ℹ️ Modo demo: até <b>5 questões</b> por tópico.</div>
+<div id="menu" class="card" style="display:block;">
+  <h1>Treinamento Professor SEDF</h1>
+  <label for="numQuestions">Quantas questões?</label>
+  <input type="number" id="numQuestions" min="1" value="10">
+  <div class="row" style="margin-top:10px;">
+    <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+    <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
+    <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+    <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+    <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
   </div>
 </div>
 
@@ -80,10 +55,7 @@ textarea { width:90%; }
   <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
 
-<!-- === Scripts: ordem correta === -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="quiz.js"></script>
-<script src="controle.js"></script>
-
 </body>
 </html>
