@@ -10,7 +10,7 @@ const blocoMap = {
 // Tipo de usuário
 let userType = localStorage.getItem('userType') || 'demo';
 
-// Busca questões do Supabase
+// Função para buscar questões do Supabase
 async function fetchQuizData(topic){
   const bloco_id = blocoMap[topic];
   const tabela = (userType==="demo") ? "questoes_demo" : "questoes";

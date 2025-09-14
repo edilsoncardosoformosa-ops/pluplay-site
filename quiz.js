@@ -7,24 +7,15 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 let quizCurrent = [], currentIndex = 0, score = 0, answered = false;
 const maxDemo = 5;
 
-// ===== Inicia Quiz =====
+// ===== Funções do Quiz =====
 async function startQuiz(blocoKey) {
-    const bloco_id = blocoMap[blocoKey];
-    if(!bloco_id){
-        alert("Bloco não encontrado!");
-        return;
-    }
-
-    // Busca questões do Supabase
-    let questoes = await fetchQuizData(blocoKey);
-    if(userType === 'demo') questoes = questoes.slice(0, maxDemo);
-
-    if(questoes.length === 0){
+    const questoes = await fetchQuizData(blocoKey);
+    if(!questoes.length){
         alert("Nenhuma questão encontrada para este tópico.");
         return;
     }
 
-    quizCurrent = shuffleArray(questoes);
+    quizCurrent = (userType==='demo') ? questoes.slice(0,maxDemo) : questoes;
     currentIndex = 0;
     score = 0;
 
@@ -33,7 +24,6 @@ async function startQuiz(blocoKey) {
     document.getElementById('menu').style.display='none';
 }
 
-// ===== Funções Auxiliares =====
 function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
 
 function showQuestion(){
