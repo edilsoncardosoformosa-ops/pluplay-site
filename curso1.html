@@ -22,7 +22,6 @@ textarea { width:90%; }
 .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
 .correct { color:#16a34a; font-weight:bold; }
 .incorrect { color:#dc2626; font-weight:bold; }
-.hidden { display:none; }
 </style>
 </head>
 <body>
@@ -39,7 +38,7 @@ textarea { width:90%; }
     </div>
     <label>Contato Master (WhatsApp)</label>
     <div class="row">
-      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">📞 Abrir WhatsApp</a>
+      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">💬 Abrir WhatsApp</a>
     </div>
     <div style="margin-top:10px;">
       <button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button>
@@ -81,16 +80,10 @@ textarea { width:90%; }
   <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
 
-<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="controle.js"></script>
 
 <script>
-// --- Configuração Supabase ---
-const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4"; // Substitua pela sua
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// --- Configuração usuário ---
 let userType = localStorage.getItem('userType') || 'demo';
 let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
@@ -98,64 +91,84 @@ document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
 
 document.getElementById('copyIdBtn').addEventListener('click', () => {
-  const t = document.getElementById('userIdBox').value;
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(t).then(()=>alert('ID copiado!')).catch(()=>fallbackCopy(t));
-  } else fallbackCopy(t);
+  const userId = document.getElementById('userIdBox').value;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(userId)
+      .then(() => alert('ID copiado!'))
+      .catch(() => fallbackCopy(userId));
+  } else fallbackCopy(userId);
 });
-function fallbackCopy(text){
-  const e=document.createElement('textarea'); e.value=text;
-  document.body.appendChild(e); e.select(); document.execCommand('copy'); document.body.removeChild(e);
+
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
   alert('ID copiado!');
 }
 
 function enterPassword(){
-  let t=prompt("Digite a senha fornecida pelo Master:");
-  if(t==="12345"){ userType="full"; localStorage.setItem("userType","full"); alert("Acesso liberado!"); document.getElementById("protectedContent").style.display="none"; }
-  else alert("Senha incorreta.");
+  let senha = prompt("Digite a senha fornecida pelo Master:");
+  if(senha === "12345"){ // <- sua senha
+    userType="full";
+    localStorage.setItem("userType","full");
+    alert("Acesso liberado!");
+    document.getElementById("protectedContent").style.display="none";
+  } else {
+    alert("Senha incorreta.");
+  }
 }
 
-if(userType!=='master'){ 
+if(userType!=='master'){
   document.getElementById('protectedContent').style.display='block';
   if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
 }
 
-// --- Voz ---
+// Voz
 let voiceEnabled=false;
 document.getElementById('toggleVoice').onclick = ()=>{ 
   voiceEnabled=!voiceEnabled; 
-  document.getElementById('toggleVoice').innerText = voiceEnabled?'🔈 Desativar Ler':'🔊 Ativar Ler'; 
+  document.getElementById('toggleVoice').innerText=voiceEnabled?'🔉 Desativar Ler':'🔊 Ativar Ler'; 
 };
 
-// --- Quiz ---
+// Quiz
 let quizCurrent=[], currentIndex=0, score=0, answered=false;
 const maxDemo = 5;
 
 function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
 
-// Busca blocos do Supabase
-async function fetchBlocos(){
-  const { data, error } = await supabase.from('blocos').select("*");
-  if(error){ console.error("Erro ao buscar blocos:", error); return []; }
-  return data || [];
-}
+// Supabase
+const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Start Quiz dinâmico
+const blocoMap = {
+  Lport:"11111111-1111-1111-1111-111111111111",
+  RIDE:"22222222-2222-2222-2222-222222222222",
+  Legisla:"33333333-3333-3333-3333-333333333333",
+  TemaEdu:"44444444-4444-4444-4444-444444444444",
+  Eduincl:"55555555-5555-5555-5555-555555555555"
+};
+
 async function startQuiz(topic){
   const numQ = parseInt(document.getElementById('numQuestions').value)||10;
-  const blocos = await fetchBlocos();
-  const bloco = blocos.find(b => b.nome === topic);
-  if(!bloco){ alert("Bloco não encontrado!"); return; }
-
-  const tabela = (userType==='demo') ? "questoes_demo" : "questoes";
-  const { data: questoes, error } = await supabase.from(tabela).select("*").eq("bloco_id", bloco.id);
-  if(error){ console.error("Erro ao carregar questões:", error); alert("Erro ao carregar questões. Veja console."); return; }
-
-  quizCurrent = shuffleArray(questoes || []);
-  if(userType==='demo') quizCurrent = quizCurrent.slice(0, maxDemo);
-  quizCurrent = quizCurrent.slice(0, numQ);
-
-  currentIndex=0; score=0;
+  const blocoId = blocoMap[topic];
+  const tableName = (userType==='demo') ? "questoes_demo" : "questoes";
+  const { data, error } = await supabaseClient
+        .from(tableName)
+        .select("*")
+        .eq("bloco_id", blocoId);
+  if(error){
+    console.error("Erro ao carregar questões:", error);
+    alert("Erro ao carregar questões. Veja console.");
+    return;
+  }
+  quizCurrent = data || [];
+  if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
+  quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
+  currentIndex = 0; score = 0;
   showQuestion();
 }
 
@@ -168,8 +181,8 @@ function showQuestion(){
   document.getElementById('comment').innerText = '';
   document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
   if(voiceEnabled){
-    const u = new SpeechSynthesisUtterance(q.enunciado); u.lang='pt-BR'; u.rate=1.5;
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    let u = new SpeechSynthesisUtterance(q.enunciado);
+    u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   }
 }
 
@@ -177,12 +190,12 @@ function answer(val){
   if(answered) return;
   answered=true;
   const q = quizCurrent[currentIndex];
-  let result = (q.correta===val) ? "Você acertou!" : "Você errou!";
+  const result = (q.correta===val) ? "Você acertou!" : "Você errou!";
   document.getElementById('comment').innerHTML = `<span class="${q.correta===val?'correct':'incorrect'}">${result} ${q.comentario}</span>`;
   if(q.correta===val) score++;
   if(voiceEnabled){
-    const u = new SpeechSynthesisUtterance(result + " " + q.comentario); u.lang='pt-BR'; u.rate=1.5;
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    let u = new SpeechSynthesisUtterance(result + " " + q.comentario);
+    u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   }
 }
 
@@ -191,6 +204,6 @@ function backToMenu(){ document.getElementById('quiz').style.display='none'; doc
 function endQuiz(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='block'; document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`; }
 function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').style.display='none'; }
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
