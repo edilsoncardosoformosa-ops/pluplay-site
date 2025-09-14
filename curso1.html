@@ -4,34 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Treinamento Professor SEDF - Pós Edital</title>
-<style>
-body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; background:#f4f4f9; color:#333; }
-button { margin:6px; padding:12px 24px; font-size:1.1em; border-radius:12px; cursor:pointer; }
-button.primary { background:#2563eb; color:#fff; border:none; }
-button.ghost { background:#eee; border:1px solid #ccc; }
-button.ok { background:#16a34a; color:#fff; border:none; }
-button.danger { background:#dc2626; color:#fff; border:none; }
-#quiz, #result, #menu { display:none; margin-top:16px; }
-.pill { display:inline-block; padding:2px 8px; background:#eef2ff; border-radius:999px; color:#2563eb; margin:4px; }
-.muted { color:#666; font-size:0.9em; }
-.row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
-.card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
-.correct { color:#16a34a; font-weight:bold; }
-.incorrect { color:#dc2626; font-weight:bold; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="menu" class="card" style="display:block;">
-  <h1>Treinamento Professor SEDF</h1>
-  <label for="numQuestions">Quantas questões?</label>
-  <input type="number" id="numQuestions" min="1" value="10">
-  <div class="row" style="margin-top:10px;">
-    <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
-    <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
-    <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
-    <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
-    <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+<div id="protectedContent" class="card">
+  <h1>Treinamento Professor SEDF - Pós Edital</h1>
+  <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
+
+  <div id="userInfo" class="card">
+    <label>ID do dispositivo</label>
+    <div class="row">
+      <input id="userIdBox" readonly class="short"/>
+      <button id="copyIdBtn" class="ghost">📋 Copiar</button>
+    </div>
+    <label>Contato Master (WhatsApp)</label>
+    <div class="row">
+      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">💬 Abrir WhatsApp</a>
+    </div>
+    <div style="margin-top:10px;">
+      <button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button>
+    </div>
+    <div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção some.</div>
+  </div>
+
+  <div id="menu" class="card">
+    <label for="numQuestions">Quantas questões?</label>
+    <input type="number" id="numQuestions" min="1" value="10" class="short">
+    <div class="row" style="margin-top:10px; flex-wrap:wrap;">
+      <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+      <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
+      <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+      <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+      <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+    </div>
+    <div id="demoNote" class="muted hidden">ℹ️ Modo demo: até <b>5 questões</b> por tópico.</div>
   </div>
 </div>
 
@@ -55,7 +62,10 @@ button.danger { background:#dc2626; color:#fff; border:none; }
   <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="controle.js"></script>
 <script src="quiz.js"></script>
+
 </body>
 </html>
