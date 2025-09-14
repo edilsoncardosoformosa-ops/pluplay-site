@@ -22,7 +22,6 @@ textarea { width:90%; }
 .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
 .correct { color:#16a34a; font-weight:bold; }
 .incorrect { color:#dc2626; font-weight:bold; }
-.hidden { display:none; }
 </style>
 </head>
 <body>
@@ -81,16 +80,17 @@ textarea { width:90%; }
   <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
 
-<!-- Carrega Supabase primeiro -->
+<!-- Supabase primeiro -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- Inicialização do quiz -->
 <script>
-/* --- Configuração Supabase --- */
+/* ------------------------- INICIALIZAÇÃO ------------------------- */
 const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-/* --- Controle de usuário --- */
+/* ------------------------- USER & VOICE ------------------------- */
 let userType = localStorage.getItem('userType') || 'demo';
 let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
@@ -98,47 +98,23 @@ document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
 
 document.getElementById('copyIdBtn').addEventListener('click', () => {
-  const userId = document.getElementById('userIdBox').value;
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!')).catch(()=>fallbackCopy(userId));
-  } else fallbackCopy(userId);
+  const id = document.getElementById('userIdBox').value;
+  navigator.clipboard?.writeText?.(id).then(()=>alert('ID copiado!')).catch(()=>fallbackCopy(id));
 });
-
-function fallbackCopy(text) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textarea);
-  alert('ID copiado!');
-}
+function fallbackCopy(text){ const t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); alert('ID copiado!'); }
 
 function enterPassword(){
   let senha = prompt("Digite a senha fornecida pelo Master:");
-  if(senha === "12345"){ 
-    userType="full";
-    localStorage.setItem("userType","full");
-    alert("Acesso liberado!");
-    document.getElementById("protectedContent").style.display="none";
-  } else {
-    alert("Senha incorreta.");
-  }
+  if(senha==="12345"){ userType="full"; localStorage.setItem("userType","full"); alert("Acesso liberado!"); document.getElementById("protectedContent").style.display="none"; }
+  else alert("Senha incorreta.");
 }
 
-if(userType!=='master'){
-  document.getElementById('protectedContent').style.display='block';
-  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
-}
+if(userType!=='master'){ document.getElementById('protectedContent').style.display='block'; if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden'); }
 
-// Voz
 let voiceEnabled=false;
-document.getElementById('toggleVoice').onclick = ()=>{ 
-  voiceEnabled=!voiceEnabled; 
-  document.getElementById('toggleVoice').innerText=voiceEnabled?'🔇 Desativar Ler':'🔊 Ativar Ler'; 
-};
+document.getElementById('toggleVoice').onclick = ()=>{ voiceEnabled=!voiceEnabled; document.getElementById('toggleVoice').innerText = voiceEnabled?'🔉 Desativar Ler':'🔊 Ativar Ler'; };
 
-/* --- Quiz online via Supabase --- */
+/* ------------------------- QUIZ ------------------------- */
 let quizCurrent=[], currentIndex=0, score=0, answered=false;
 const maxDemo = 5;
 const blocoMap = {
@@ -152,27 +128,15 @@ const blocoMap = {
 function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
 
 async function startQuiz(topic){
-  const numQ = parseInt(document.getElementById('numQuestions').value)||10;
-  const blocoId = blocoMap[topic];
-  const tableName = (userType==='demo') ? 'questoes_demo' : 'questoes';
-  const { data: questions, error } = await supabase.from(tableName).select('*').eq('bloco_id', blocoId);
-
-  if(error){
-    console.error("Erro ao carregar questões:", error);
-    alert("Não foi possível carregar as questões. Veja o console.");
-    return;
-  }
-
-  quizCurrent = questions || [];
-  if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
-  quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
+  let numQ = parseInt(document.getElementById('numQuestions').value)||10;
+  const bloco_id = blocoMap[topic];
+  const table = (userType==='demo') ? 'questoes_demo' : 'questoes';
+  
+  const {data: i, error: s} = await supabase.from(table).select("*").eq("bloco_id", bloco_id);
+  if(s){ console.error("Erro ao carregar questões:",s); alert("Não foi possível carregar as questões. Veja o console."); return; }
+  
+  quizCurrent = shuffleArray(i || []).slice(0,numQ);
   currentIndex=0; score=0;
-
-  if(!quizCurrent.length){
-    alert("Sem questões neste tópico.");
-    return;
-  }
-
   showQuestion();
 }
 
@@ -184,30 +148,24 @@ function showQuestion(){
   document.getElementById('question').innerText = q.q;
   document.getElementById('comment').innerText = '';
   document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
-  if(voiceEnabled){
-    let u = new SpeechSynthesisUtterance(q.q);
-    u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-  }
+  if(voiceEnabled){ let u = new SpeechSynthesisUtterance(q.q); u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
 }
 
 function answer(val){
   if(answered) return;
   answered=true;
   const q = quizCurrent[currentIndex];
-  const result = (q.a===val) ? "Você acertou!" : "Você errou!";
+  const result = (q.a===val)?"Você acertou!":"Você errou!";
   document.getElementById('comment').innerHTML = `<span class="${q.a===val?'correct':'incorrect'}">${result} ${q.c}</span>`;
   if(q.a===val) score++;
-  if(voiceEnabled){
-    let u = new SpeechSynthesisUtterance(result + " " + q.c);
-    u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-  }
+  if(voiceEnabled){ let u = new SpeechSynthesisUtterance(result+" "+q.c); u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }
 }
 
 function nextQuestion(){ currentIndex++; showQuestion(); }
 function backToMenu(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='none'; }
 function endQuiz(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='block'; document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`; }
 function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').style.display='none'; }
-</script>
 
+</script>
 </body>
 </html>
