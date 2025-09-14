@@ -22,6 +22,7 @@ textarea { width:90%; }
 .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
 .correct { color:#16a34a; font-weight:bold; }
 .incorrect { color:#dc2626; font-weight:bold; }
+.hidden { display:none; }
 </style>
 </head>
 <body>
@@ -56,7 +57,7 @@ textarea { width:90%; }
       <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
       <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
     </div>
-    <div id="demoNote" class="muted hidden">🛈 Modo demo: até <b>5 questões</b> por tópico.</div>
+    <div id="demoNote" class="muted hidden">ℹ️ Modo demo: até <b>5 questões</b> por tópico.</div>
   </div>
 </div>
 
@@ -80,17 +81,8 @@ textarea { width:90%; }
   <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
 
-<!-- === Supabase SDK === -->
+<!-- === Scripts === -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- === Criação do Cliente Supabase ANTES de qualquer outro script === -->
-<script>
-  const supabaseUrl = 'https://nqhthypeljupfftlmwsz.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrCLNdP65nQL99xyhDs2DrgR-C-CrT4z4';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-</script>
-
-<!-- === Scripts do Quiz e Controle === -->
 <script src="controle.js"></script>
 <script src="quiz.js"></script>
 

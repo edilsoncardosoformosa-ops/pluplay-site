@@ -1,3 +1,8 @@
+// ===== Supabase Setup =====
+const supabaseUrl = 'https://nqhthypeljupfftlmwsz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrCLNdP65nQL99xyhDs2DrgR-C-CrT4z4';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 // ===== Variáveis do Quiz =====
 let quizCurrent = [], currentIndex = 0, score = 0, answered = false;
 const maxDemo = 5;
