@@ -1,295 +1,109 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Master Admin</title>
 <style>
-:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}
-body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}
-header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
-header img{height:44px}
-main{padding:20px}
-.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}
-button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}
-button.ghost{background:#eee;color:#222}
-.grid{display:grid;gap:12px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}
-label{font-weight:600}
-.muted{color:#666;font-size:.95rem}
-.pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}
-.hidden{display:none!important}
-@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}
+body { font-family: Arial, sans-serif; background:#f4f4f9; color:#333; padding:20px; }
+h1 { color:#1E90FF; }
+button { padding:8px 12px; margin:4px; cursor:pointer; border-radius:4px; border:none; background:#1E90FF; color:white; }
+button.danger { background:#FF4500; }
+section { margin-top:20px; }
+#questionsList, #blocksList, #usersList { margin-top:10px; }
+.card { background:white; padding:10px; margin:5px 0; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
 </style>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabaseUrl = 'https://nqhthypeljupfftlmwsz.supabase.co'
+const supabaseKey = 'sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1'
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+// =====================
+// Funções principais
+// =====================
+
+// Listar blocos
+async function listarBlocos() {
+  const { data, error } = await supabase.from('blocks').select('*')
+  const container = document.getElementById('blocksList')
+  container.innerHTML = ''
+  if (error) return console.error(error)
+  data.forEach(b => {
+    const div = document.createElement('div')
+    div.className = 'card'
+    div.textContent = b.topic
+    container.appendChild(div)
+  })
+}
+
+// Listar usuários
+async function listarUsuarios() {
+  const { data, error } = await supabase.from('users').select('*')
+  const container = document.getElementById('usersList')
+  container.innerHTML = ''
+  if (error) return console.error(error)
+  data.forEach(u => {
+    const div = document.createElement('div')
+    div.className = 'card'
+    div.textContent = `${u.name} - ${u.note || ''}`
+    container.appendChild(div)
+  })
+}
+
+// Listar questões
+async function listarQuestoes() {
+  const { data, error } = await supabase.from('questions').select('*')
+  const container = document.getElementById('questionsList')
+  container.innerHTML = ''
+  if (error) return console.error(error)
+  data.forEach(q => {
+    const div = document.createElement('div')
+    div.className = 'card'
+    div.textContent = `[${q.topic}] ${q.question} (${q.answer ? '✔️' : '❌'})`
+    container.appendChild(div)
+  })
+}
+
+// Adicionar usuário
+async function adicionarUsuario() {
+  const nome = prompt('Nome do usuário:')
+  const nota = prompt('Nota/Observação (opcional):')
+  if (!nome) return
+  const { data, error } = await supabase.from('users').insert([{ name: nome, note: nota }])
+  if (error) return console.error(error)
+  listarUsuarios()
+}
+
+// =====================
+// Inicialização
+// =====================
+document.addEventListener('DOMContentLoaded', () => {
+  listarBlocos()
+  listarUsuarios()
+  listarQuestoes()
+  document.getElementById('btnAddUser').onclick = adicionarUsuario
+})
+</script>
 </head>
 <body>
-<header id="masterHeader">
-  <img src="logomarca.png" alt="Logo Plug & Play">
-  <span class="muted">Master Admin</span>
-</header>
+<h1>Master Admin</h1>
 
-<main>
-<div id="appControls" class="hidden">
-  <button id="btnAddQ">➕ Adicionar Questão</button>
-  <button id="btnAddBlock">➕ Adicionar Bloco</button>
-  <button id="btnManageUsers">👤 Gerenciar Usuários</button>
-  <button id="btnManageQs">📋 Gerenciar Questões</button>
-</div>
+<section>
+  <h2>Blocos</h2>
+  <div id="blocksList"></div>
+</section>
 
-<!-- Adicionar Questão Individual -->
-<div id="addQuestionForm" class="card hidden">
-  <h3>Adicionar Questão</h3>
-  <label>Tópico</label>
-  <select id="newTopic">
-    <option value="Lport">Língua Portuguesa</option>
-    <option value="ride">RIDE</option>
-    <option value="Legisla">Legislação</option>
-    <option value="TemaEdu">Temas Educacionais</option>
-    <option value="Eduincl">Educação Inclusiva</option>
-  </select>
-  <label>Pergunta</label>
-  <textarea id="newQuestionText" rows="3"></textarea>
-  <label>Comentário</label>
-  <textarea id="newQuestionComment" rows="2"></textarea>
-  <label>Resposta correta</label>
-  <select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
-  <div class="row" style="margin-top:6px">
-    <button id="saveQuestionBtn">Salvar</button>
-    <button onclick="hideAddQuestion()" class="ghost">Cancelar</button>
-  </div>
-</div>
+<section>
+  <h2>Usuários</h2>
+  <button id="btnAddUser">Adicionar Usuário</button>
+  <div id="usersList"></div>
+</section>
 
-<!-- Adicionar Bloco -->
-<div id="addQuestionBlockForm" class="card hidden">
-  <h3>Adicionar Bloco</h3>
-  <label>Tópico</label>
-  <select id="newBlockTopic">
-    <option value="Lport">Língua Portuguesa</option>
-    <option value="ride">RIDE</option>
-    <option value="Legisla">Legislação</option>
-    <option value="TemaEdu">Temas Educacionais</option>
-    <option value="Eduincl">Educação Inclusiva</option>
-  </select>
-  <label>Formato (uma por linha, JSON)</label>
-  <textarea id="newBlockQuestions" rows="6" placeholder='{ "q":"Pergunta", "a":true, "c":"Comentário" }'></textarea>
-  <div class="row" style="margin-top:8px">
-    <button id="saveBlockBtn">Adicionar Bloco</button>
-    <button onclick="hideAddBlock()" class="ghost">Cancelar</button>
-  </div>
-</div>
-
-<!-- Gerenciar Usuários -->
-<div id="manageUsers" class="card hidden">
-  <h3>Gerenciar Usuários</h3>
-  <ul id="userList"></ul>
-  <label>ID manual</label>
-  <input id="manualUserId" placeholder="ID do usuário">
-  <label>Nota</label>
-  <input id="manualUserNote" placeholder="Nome/Observação">
-  <div class="row" style="margin-top:8px">
-    <button id="addManualUserBtn">Adicionar</button>
-    <button onclick="hideManageUsers()" class="ghost">Fechar</button>
-  </div>
-</div>
-
-<!-- Gerenciar Questões -->
-<div id="manageQuestions" class="card hidden">
-  <h3>Gerenciar Questões</h3>
-  <label>Filtrar por tópico</label>
-  <select id="filterTopic">
-    <option value="">Todos</option>
-    <option value="Lport">Língua Portuguesa</option>
-    <option value="ride">RIDE</option>
-    <option value="Legisla">Legislação</option>
-    <option value="TemaEdu">Temas Educacionais</option>
-    <option value="Eduincl">Educação Inclusiva</option>
-  </select>
-  <label>Pesquisar</label>
-  <input id="searchQuestion" placeholder="Digite palavra-chave">
-  <div id="questionsList" class="grid" style="margin-top:8px;"></div>
-  <div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
-</div>
-
-<!-- Modal de edição de questão -->
-<div id="editQuestionModal" class="card hidden">
-  <h3>Editar Questão</h3>
-  <label>Tópico</label>
-  <select id="editTopic">
-    <option value="Lport">Língua Portuguesa</option>
-    <option value="ride">RIDE</option>
-    <option value="Legisla">Legislação</option>
-    <option value="TemaEdu">Temas Educacionais</option>
-    <option value="Eduincl">Educação Inclusiva</option>
-  </select>
-  <label>Pergunta</label>
-  <textarea id="editQuestionText" rows="3"></textarea>
-  <label>Comentário</label>
-  <textarea id="editQuestionComment" rows="2"></textarea>
-  <label>Resposta correta</label>
-  <select id="editQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
-  <div class="row" style="margin-top:6px">
-    <button id="saveEditBtn">Salvar Alterações</button>
-    <button onclick="hideEditModal()" class="ghost">Cancelar</button>
-  </div>
-</div>
-
-<script src="controle.js"></script>
-<script>
-const masterHeader = document.getElementById('masterHeader');
-const appControls = document.getElementById('appControls');
-let clickCount = 0;
-
-masterHeader.addEventListener('click', () => {
-  clickCount++;
-  setTimeout(() => {
-    if (clickCount >= 2) {
-      appControls.classList.remove('hidden');
-      clickCount = 0;
-    } else { clickCount = 0; }
-  }, 300);
-});
-
-const hideAddQuestion = ()=>document.getElementById('addQuestionForm').classList.add('hidden');
-const hideAddBlock = ()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
-const hideManageUsers = ()=>document.getElementById('manageUsers').classList.add('hidden');
-const hideManageQuestions = ()=>document.getElementById('manageQuestions').classList.add('hidden');
-const hideEditModal = ()=>document.getElementById('editQuestionModal').classList.add('hidden');
-
-document.getElementById('btnAddQ').addEventListener('click', ()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
-document.getElementById('btnAddBlock').addEventListener('click', ()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
-document.getElementById('btnManageUsers').addEventListener('click', ()=>{document.getElementById('manageUsers').classList.remove('hidden'); renderUserList();});
-document.getElementById('btnManageQs').addEventListener('click', ()=>{document.getElementById('manageQuestions').classList.remove('hidden'); renderQuestionsList();});
-
-// Adicionar Questão Individual
-document.getElementById('saveQuestionBtn').addEventListener('click', () => {
-  let t = document.getElementById('newTopic').value,
-      q = document.getElementById('newQuestionText').value,
-      c = document.getElementById('newQuestionComment').value,
-      a = document.getElementById('newQuestionAnswer').value === 'true';
-  if (!q) { alert('Digite a pergunta'); return; }
-  if (!window.quizData) window.quizData = {};
-  if (!window.quizData[t]) window.quizData[t] = [];
-  window.quizData[t].push({q,q,a,c});
-  localStorage.setItem('quizData', JSON.stringify(window.quizData));
-  alert('Questão adicionada');
-  hideAddQuestion();
-  renderQuestionsList();
-});
-
-// Adicionar Bloco de Questões
-document.getElementById('saveBlockBtn').addEventListener('click', () => {
-  let t = document.getElementById('newBlockTopic').value,
-      b = document.getElementById('newBlockQuestions').value.split('\n').map(x=>x.trim()).filter(x=>x);
-  if (!window.quizData) window.quizData = {};
-  if (!window.quizData[t]) window.quizData[t] = [];
-  let count = 0;
-  b.forEach(line => {
-    if (!line) return;
-    try {
-      let jsonLine = line.replace(/,$/,'').replace(/([{,]\s*)(\w+)\s*:/g,'$1"$2":');
-      let qObj = JSON.parse(jsonLine);
-      if (qObj.q && typeof qObj.a !== 'undefined') { window.quizData[t].push(qObj); count++; }
-    } catch(e){ console.error('Erro:', line); }
-  });
-  localStorage.setItem('quizData', JSON.stringify(window.quizData));
-  alert(`Bloco adicionado com ${count} questão(ões)`);
-  hideAddBlock();
-  renderQuestionsList();
-});
-
-// Usuários manuais
-document.getElementById('addManualUserBtn').addEventListener('click', () => {
-  let id = document.getElementById('manualUserId').value,
-      note = document.getElementById('manualUserNote').value;
-  if (!id) { alert('Digite ID'); return; }
-  let users = JSON.parse(localStorage.getItem('users')||'[]');
-  users.push({id,note});
-  localStorage.setItem('users', JSON.stringify(users));
-  renderUserList();
-});
-
-// Renderizar usuários
-function renderUserList(){
-  let ul = document.getElementById('userList'); ul.innerHTML = '';
-  let users = JSON.parse(localStorage.getItem('users')||'[]');
-  users.forEach((u,i) => {
-    let li = document.createElement('li'); li.textContent=`${u.id} - ${u.note}`;
-    let btnDel = document.createElement('button'); btnDel.textContent='Revogar'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
-    btnDel.onclick = ()=>{ if(confirm('Revogar usuário?')){ users.splice(i,1); localStorage.setItem('users',JSON.stringify(users)); renderUserList(); }};
-    li.appendChild(btnDel); ul.appendChild(li);
-  });
-}
-
-// Renderizar questões com filtro e pesquisa
-let editingIndex = null;
-let editingTopic = null;
-
-function renderQuestionsList() {
-  let container = document.getElementById('questionsList'); container.innerHTML = '';
-  if (!window.quizData) return;
-  let search = (document.getElementById('searchQuestion')?.value || '').toLowerCase();
-  let filterTopic = document.getElementById('filterTopic')?.value || '';
-  Object.keys(window.quizData).forEach(t => {
-    if (filterTopic && t !== filterTopic) return;
-    window.quizData[t].forEach((qObj,i) => {
-      if (search && !qObj.q.toLowerCase().includes(search) && !(qObj.c||'').toLowerCase().includes(search)) return;
-      let row = document.createElement('div'); row.className='row';
-      let left = document.createElement('div'); left.textContent=`[${t}] ${qObj.q}`;
-      let right = document.createElement('div'); right.textContent=qObj.a?'✓':'✗';
-      
-      let btnEdit = document.createElement('button'); btnEdit.textContent='Editar'; btnEdit.className='ghost';
-      btnEdit.onclick = () => openEditModal(t,i);
-      
-      let btnDel = document.createElement('button'); btnDel.textContent='Excluir'; btnDel.className='ghost';
-      btnDel.style.marginLeft='6px';
-      btnDel.onclick = ()=>{ if(confirm('Excluir questão?')){ window.quizData[t].splice(i,1); localStorage.setItem('quizData',JSON.stringify(window.quizData)); renderQuestionsList(); }};
-      
-      row.appendChild(left); row.appendChild(right); row.appendChild(btnEdit); row.appendChild(btnDel);
-      container.appendChild(row);
-    });
-  });
-}
-
-document.getElementById('searchQuestion')?.addEventListener('input', renderQuestionsList);
-document.getElementById('filterTopic')?.addEventListener('change', renderQuestionsList);
-
-// Editar questão
-function openEditModal(topic,index){
-  editingTopic = topic; editingIndex = index;
-  const q = window.quizData[topic][index];
-  document.getElementById('editTopic').value = topic;
-  document.getElementById('editQuestionText').value = q.q;
-  document.getElementById('editQuestionComment').value = q.c || '';
-  document.getElementById('editQuestionAnswer').value = q.a;
-  document.getElementById('editQuestionModal').classList.remove('hidden');
-}
-
-document.getElementById('saveEditBtn').addEventListener('click', () => {
-  let newTopic = document.getElementById('editTopic').value;
-  let q = document.getElementById('editQuestionText').value;
-  let c = document.getElementById('editQuestionComment').value;
-  let a = document.getElementById('editQuestionAnswer').value === 'true';
-  if(!q) { alert('Digite a pergunta'); return; }
-  
-  let questionObj = {q,q,a,c};
-  
-  // Remove do tópico antigo
-  window.quizData[editingTopic].splice(editingIndex,1);
-  if(!window.quizData[newTopic]) window.quizData[newTopic]=[];
-  window.quizData[newTopic].push(questionObj);
-  
-  localStorage.setItem('quizData',JSON.stringify(window.quizData));
-  hideEditModal();
-  renderQuestionsList();
-});
-
-// Inicialização
-window.quizData = JSON.parse(localStorage.getItem('quizData')||'{}');
-renderQuestionsList();
-renderUserList();
-</script>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<section>
+  <h2>Questões</h2>
+  <div id="questionsList"></div>
+</section>
 </body>
 </html>
