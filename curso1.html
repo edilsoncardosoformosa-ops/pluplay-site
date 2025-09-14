@@ -49,8 +49,14 @@ textarea { width:90%; }
   <div id="menu" class="card">
     <label for="numQuestions">Quantas questões?</label>
     <input type="number" id="numQuestions" min="1" value="10" class="short">
-    <div class="row" id="topicButtons" style="margin-top:10px; flex-wrap:wrap;"></div>
-    <div id="demoNote" class="muted hidden">ℹ️ Modo demo: até <b>5 questões</b> por tópico.</div>
+    <div class="row" style="margin-top:10px; flex-wrap:wrap;">
+      <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+      <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
+      <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+      <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+      <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+    </div>
+    <div id="demoNote" class="muted hidden">🛈 Modo demo: até <b>5 questões</b> por tópico.</div>
   </div>
 </div>
 
@@ -76,118 +82,17 @@ textarea { width:90%; }
 
 <!-- === Scripts === -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- Inicialização do Supabase - sempre primeiro -->
 <script>
-  // Supabase - inicialização
-  const supabaseUrl = 'https://nqhthypeljupfftlmwsz.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-  // Usuário e ID
-  let userType = localStorage.getItem('userType') || 'demo';
-  let userId = localStorage.getItem('userId') || crypto.randomUUID();
-  localStorage.setItem('userId', userId);
-  document.getElementById('userIdBox').value = userId;
-  document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
-
-  document.getElementById('copyIdBtn').addEventListener('click', () => {
-    navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!'));
-  });
-
-  function enterPassword(){
-    let senha = prompt("Digite a senha fornecida pelo Master:");
-    if(senha === "12345"){ // <- sua senha
-      userType="full";
-      localStorage.setItem("userType","full");
-      alert("Acesso liberado!");
-      document.getElementById("protectedContent").style.display="none";
-    } else alert("Senha incorreta.");
-  }
-
-  if(userType!=='master'){
-    document.getElementById('protectedContent').style.display='block';
-    if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
-  }
-
-  // Voz
-  let voiceEnabled=false;
-  document.getElementById('toggleVoice').onclick = ()=>{ 
-    voiceEnabled=!voiceEnabled; 
-    document.getElementById('toggleVoice').innerText=voiceEnabled?'🔉 Desativar Ler':'🔊 Ativar Ler'; 
-  };
-
-  // Quiz
-  let quizCurrent=[], currentIndex=0, score=0, answered=false;
-  const maxDemo = 5;
-  const blocoMap = {}; // para mapear blocos
-
-  // Inicializa botões de tópicos via Supabase
-  async function initTopics(){
-    const { data: blocos, error } = await supabase.from('blocos').select('*');
-    if(error){ alert('Erro ao carregar tópicos. Veja console'); console.error(error); return; }
-    const topicButtons = document.getElementById('topicButtons');
-    blocos.forEach(b=>{
-      blocoMap[b.titulo] = b.id;
-      const btn = document.createElement('button');
-      btn.className='primary';
-      btn.innerText=b.titulo;
-      btn.onclick = ()=>startQuiz(b.titulo);
-      topicButtons.appendChild(btn);
-    });
-  }
-
-  initTopics();
-
-  async function startQuiz(topic){
-    const blocoId = blocoMap[topic];
-    const numQ = parseInt(document.getElementById('numQuestions').value)||10;
-    const { data: questoes, error } = await supabase
-      .from('questoes')
-      .select('*')
-      .eq('bloco_id', blocoId);
-
-    if(error){ alert('Erro ao carregar questões. Veja console'); console.error(error); return; }
-
-    quizCurrent = questoes;
-    if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
-    currentIndex=0; score=0;
-    showQuestion();
-  }
-
-  function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
-
-  function showQuestion(){
-    if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
-    const q = quizCurrent[currentIndex];
-    answered=false;
-    document.getElementById('quiz').style.display='block';
-    document.getElementById('question').innerText = q.enunciado;
-    document.getElementById('comment').innerText = '';
-    document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
-    if(voiceEnabled){
-      let u = new SpeechSynthesisUtterance(q.enunciado);
-      u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-    }
-  }
-
-  function answer(val){
-    if(answered) return;
-    answered=true;
-    const q = quizCurrent[currentIndex];
-    let result = (q.correta===val) ? "Você acertou!" : "Você errou!";
-    document.getElementById('comment').innerHTML = `<span class="${q.correta===val?'correct':'incorrect'}">${result} ${q.comentario}</span>`;
-    if(q.correta===val) score++;
-    if(voiceEnabled){
-      let u = new SpeechSynthesisUtterance(result + " " + q.comentario);
-      u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
-    }
-  }
-
-  function nextQuestion(){ currentIndex++; showQuestion(); }
-  function backToMenu(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='none'; }
-  function endQuiz(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='block'; document.getElementById('score').innerText = `Acertos: ${score} / ${quizCurrent.length}`; }
-  function restartQuiz(){ document.getElementById('result').style.display='none'; document.getElementById('quiz').style.display='block'; currentIndex=0; score=0; showQuestion(); }
-
+  window.supabase = supabase.createClient(
+    'https://nqhthypeljupfftlmwsz.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4'
+  );
 </script>
+
+<script src="controle.js"></script>
+<script src="quiz.js"></script>
 
 </body>
 </html>
