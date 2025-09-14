@@ -1,166 +1,194 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Curso 1 - Quiz</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treinamento Professor SEDF - Pós Edital</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; background:#f4f4f9; color:#333; }
+button { margin:6px; padding:12px 24px; font-size:1.1em; border-radius:12px; cursor:pointer; }
+button.primary { background:#2563eb; color:#fff; border:none; }
+button.ghost { background:#eee; border:1px solid #ccc; }
+button.ok { background:#16a34a; color:#fff; border:none; }
+button.danger { background:#dc2626; color:#fff; border:none; }
+button.whatsapp { background:#25d366; color:#fff; border:none; }
+#quiz, #result, #protectedContent { display:none; margin-top:16px; }
+input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd; margin-top:4px; }
+input.short { width:180px; text-align:center; }
+textarea { width:90%; }
+.pill { display:inline-block; padding:2px 8px; background:#eef2ff; border-radius:999px; color:#2563eb; margin:4px; }
+.muted { color:#666; font-size:0.9em; }
+.row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+.card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
+.correct { color:#16a34a; font-weight:bold; }
+.incorrect { color:#dc2626; font-weight:bold; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Quiz de Treinamento</h1>
-  </header>
 
-  <main>
-    <!-- Menu com tópicos -->
-    <section id="menu">
-      <h2>Escolha um Tópico</h2>
-      <button class="btn btn-topic" data-topic="1">Língua Portuguesa</button>
-      <button class="btn btn-topic" data-topic="2">RIDE</button>
-      <button class="btn btn-topic" data-topic="3">Legislação</button>
-      <button class="btn btn-topic" data-topic="4">Temas Educacionais</button>
-      <button class="btn btn-topic" data-topic="5">Educação Inclusiva</button>
-    </section>
+<div id="protectedContent" class="card">
+  <h1>Treinamento Professor SEDF - Pós Edital</h1>
+  <button id="toggleVoice" class="ghost">📝 Ativar Ler</button>
 
-    <!-- Área do Quiz -->
-    <section id="quiz" class="hidden">
-      <p id="counter"></p>
-      <p id="question"></p>
-      <button onclick="answer(true)">Verdadeiro</button>
-      <button onclick="answer(false)">Falso</button>
-      <p id="comment"></p>
-      <button onclick="prevQuestion()">Anterior</button>
-      <button onclick="nextQuestion()">Próxima</button>
-      <button onclick="backToMenu()">Voltar ao Menu</button>
-    </section>
+  <div id="userInfo" class="card">
+    <label>ID do dispositivo</label>
+    <div class="row">
+      <input id="userIdBox" readonly class="short"/>
+      <button id="copyIdBtn" class="ghost">📋 Copiar</button>
+    </div>
+    <label>Contato Master (WhatsApp)</label>
+    <div class="row">
+      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">📞 Abrir WhatsApp</a>
+    </div>
+    <div style="margin-top:10px;">
+      <button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button>
+    </div>
+    <div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção some.</div>
+  </div>
 
-    <!-- Resultado -->
-    <section id="result" class="hidden">
-      <h2>Resultado</h2>
-      <p id="score"></p>
-      <button onclick="restartQuiz()">Reiniciar</button>
-    </section>
-  </main>
+  <div id="menu" class="card">
+    <label for="numQuestions">Quantas questões?</label>
+    <input type="number" id="numQuestions" min="1" value="10" class="short">
+    <div class="row" style="margin-top:10px; flex-wrap:wrap;">
+      <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+      <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
+      <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+      <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+      <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+    </div>
+    <div id="demoNote" class="muted hidden">⚠️ Modo demo: até <b>5 questões</b> por tópico.</div>
+  </div>
+</div>
 
-  <footer>
-    <p>© 2025 PlugPlay Treinamentos</p>
-  </footer>
+<div id="quiz" class="card">
+  <div id="counter" class="pill"></div>
+  <div id="question" style="margin:12px 0; font-weight:bold;"></div>
+  <div class="row">
+    <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
+    <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
+  </div>
+  <div id="comment" class="muted" style="margin-top:10px;"></div>
+  <div class="row" style="margin-top:12px;">
+    <button onclick="nextQuestion()" class="primary">Próxima questão</button>
+    <button onclick="backToMenu()" class="ghost">Voltar ao menu</button>
+  </div>
+</div>
 
-  <!-- Supabase + Lógica -->
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+<div id="result" class="card">
+  <h3>Fim do Quiz!</h3>
+  <p id="score"></p>
+  <button onclick="restartQuiz()" class="primary">Reiniciar</button>
+</div>
 
-    const supabaseUrl = "https://nqhthypeljupfftlmwsz.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4";
-    const supabase = createClient(supabaseUrl, supabaseKey);
+<!-- === Scripts === -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    // Mapeamento fixo dos tópicos para blocos
-    const blocoMap = {
-      1: "11111111-1111-1111-1111-111111111111", // Língua Portuguesa
-      2: "22222222-2222-2222-2222-222222222222", // RIDE
-      3: "33333333-3333-3333-3333-333333333333", // Legislação
-      4: "44444444-4444-4444-4444-444444444444", // Temas Educacionais
-      5: "55555555-5555-5555-5555-555555555555"  // Educação Inclusiva
-    };
+<script>
+// ===== Supabase Setup =====
+const supabaseUrl = 'https://nqhthypeljupfftlmwsz.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrCLNdP65nQL99xyhDs2DrgR-C-CrT4z4';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let currentQuestions = [];
-    let currentIndex = 0;
-    let score = 0;
+// ===== Mapear blocos com seus UUIDs =====
+const blocoMap = {
+    'Lport': '11111111-1111-1111-1111-111111111111',
+    'RIDE': '22222222-2222-2222-2222-222222222222',
+    'Legisla': '33333333-3333-3333-3333-333333333333',
+    'TemaEdu': '44444444-4444-4444-4444-444444444444',
+    'Eduincl': '55555555-5555-5555-5555-555555555555'
+};
 
-    async function startQuiz(topic) {
-      const blocoId = blocoMap[topic];
-      if (!blocoId) {
-        alert("Bloco não encontrado.");
-        return;
-      }
+// ===== Variáveis do Quiz =====
+let quizCurrent = [], currentIndex = 0, score = 0, answered = false;
+const maxDemo = 5;
+let userType = localStorage.getItem('userType') || 'demo';
 
-      const { data, error } = await supabase
-        .from("questoes")
-        .select("*")
-        .eq("bloco_id", blocoId);
+// ===== Inicialização de usuário =====
+let userId = localStorage.getItem('userId') || crypto.randomUUID();
+localStorage.setItem('userId', userId);
+document.getElementById('userIdBox').value = userId;
+document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
 
-      if (error) {
-        console.error("Erro ao buscar questões:", error);
-        alert("Erro ao carregar questões. Veja console.");
-        return;
-      }
+// Copiar ID
+document.getElementById('copyIdBtn').addEventListener('click', () => {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!'));
+  } else {
+    const textarea = document.createElement('textarea');
+    textarea.value = userId;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('ID copiado!');
+  }
+});
 
-      if (!data.length) {
-        alert("Nenhuma questão disponível para este bloco.");
-        return;
-      }
+function enterPassword(){
+  let senha = prompt("Digite a senha fornecida pelo Master:");
+  if(senha === "12345"){
+    userType="full";
+    localStorage.setItem("userType","full");
+    alert("Acesso liberado!");
+    document.getElementById("protectedContent").style.display="none";
+  } else {
+    alert("Senha incorreta.");
+  }
+}
 
-      currentQuestions = data.map(q => ({
-        q: q.enunciado,
-        a: q.correta,
-        c: q.comentario
-      }));
+if(userType!=='master'){
+  document.getElementById('protectedContent').style.display='block';
+  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
+}
 
-      currentIndex = 0;
-      score = 0;
-
-      document.getElementById("menu").style.display = "none";
-      document.getElementById("quiz").classList.remove("hidden");
-
-      showQuestion();
-    }
-
-    function showQuestion() {
-      if (currentIndex >= currentQuestions.length) {
-        endQuiz();
-        return;
-      }
-
-      const q = currentQuestions[currentIndex];
-      document.getElementById("question").textContent = q.q;
-      document.getElementById("comment").textContent = "";
-      document.getElementById("counter").textContent =
-        "Questão " + (currentIndex + 1) + " de " + currentQuestions.length;
-    }
-
-    function answer(c) {
-      const q = currentQuestions[currentIndex];
-      const txt = (c === q.a ? "✓ Correto! " : "✗ Errado! ") + (q.c || "");
-      document.getElementById("comment").textContent = txt;
-      if (c === q.a) score++;
-    }
-
-    function nextQuestion() {
-      currentIndex++;
-      showQuestion();
-    }
-
-    function prevQuestion() {
-      if (currentIndex > 0) {
-        currentIndex--;
+// ===== Quiz Functions =====
+async function startQuiz(blocoKey) {
+    const bloco_id = blocoMap[blocoKey];
+    if(!bloco_id){ alert("Bloco não encontrado!"); return; }
+    try {
+        let { data: questoes, error } = await supabase
+            .from('questoes')
+            .select('*')
+            .eq('bloco_id', bloco_id);
+        if(error) throw error;
+        if(userType==='demo') questoes = questoes.slice(0,maxDemo);
+        quizCurrent = shuffleArray(questoes);
+        currentIndex=0; score=0;
         showQuestion();
-      }
+        document.getElementById('quiz').style.display='block';
+        document.getElementById('menu').style.display='none';
+    } catch(err){
+        console.error(err);
+        alert("Erro ao carregar questões. Veja console.");
     }
+}
 
-    function backToMenu() {
-      document.getElementById("quiz").classList.add("hidden");
-      document.getElementById("menu").style.display = "block";
-    }
+function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
 
-    function endQuiz() {
-      document.getElementById("quiz").classList.add("hidden");
-      document.getElementById("result").classList.remove("hidden");
-      document.getElementById("score").textContent =
-        "Você acertou " + score + " de " + currentQuestions.length;
-    }
+function showQuestion(){
+    if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
+    answered=false;
+    const q = quizCurrent[currentIndex];
+    document.getElementById('question').innerText = q.enunciado;
+    document.getElementById('comment').innerText = '';
+    document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
+}
 
-    function restartQuiz() {
-      document.getElementById("result").classList.add("hidden");
-      document.getElementById("menu").style.display = "block";
-    }
+function answer(val){
+    if(answered) return;
+    answered=true;
+    const q = quizCurrent[currentIndex];
+    const correct = (q.correta === val);
+    document.getElementById('comment').innerHTML = `<span class="${correct?'correct':'incorrect'}">${correct?'Você acertou!':'Você errou!'} ${q.comentario || ''}</span>`;
+    if(correct) score++;
+}
 
-    // Ativa os botões de tópicos
-    document.querySelectorAll(".btn-topic").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const topic = btn.dataset.topic;
-        startQuiz(topic);
-      });
-    });
-  </script>
+function nextQuestion(){ currentIndex++; showQuestion(); }
+function backToMenu(){ document.getElementById('quiz').style.display='none'; document.getElementById('menu').style.display='block'; }
+function endQuiz(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='block'; document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`; }
+function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').style.display='none'; document.getElementById('menu').style.display='block'; }
+
+</script>
+
 </body>
 </html>
