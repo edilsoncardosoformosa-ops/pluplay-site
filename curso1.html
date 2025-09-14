@@ -80,6 +80,7 @@ textarea { width:90%; }
   <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // Usuário
 let userType = localStorage.getItem('userType') || 'demo';
@@ -117,7 +118,7 @@ document.getElementById('toggleVoice').onclick = ()=>{
 let quizCurrent=[], currentIndex=0, score=0, answered=false;
 const maxDemo = 5;
 
-// **QUIZ LOCAL OFFLINE**
+// QUIZ LOCAL OFFLINE
 const quizData = {
   Lport:[
     {q:"O Brasil foi descoberto em 1500.", a:true, c:"Correto, por Pedro Álvares Cabral."},
@@ -137,12 +138,28 @@ const quizData = {
   ]
 };
 
+// Configuração Supabase
+const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // <-- substitua pela sua anon key
+let supabase;
+try { supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e){ console.warn('Supabase não carregou, usando offline'); }
+
+// Funções quiz
 function shuffleArray(arr){ return arr.sort(()=>Math.random()-0.5); }
-function startQuiz(topic){
+
+async function startQuiz(topic){
   let numQ = parseInt(document.getElementById('numQuestions').value) || 10;
-  quizCurrent = quizData[topic] || [];
+  if(supabase){
+    try {
+      let { data, error } = await supabase.from('quiz').select('*').eq('topic', topic);
+      if(error || !data || data.length===0) throw new Error('Supabase falhou, fallback local');
+      quizCurrent = shuffleArray(data).slice(0,numQ);
+    } catch(err){
+      console.warn(err); // fallback
+      quizCurrent = quizData[topic] || [];
+    }
+  } else { quizCurrent = quizData[topic] || []; }
   if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
-  quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
   currentIndex=0; score=0;
   showQuestion();
 }
