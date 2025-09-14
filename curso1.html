@@ -1,1 +1,89 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Treinamento Professor SEDF - Pós Edital</title><style>body{font-family:Arial,sans-serif;margin:0;padding:20px;text-align:center;background:#f4f4f9;color:#333}button{margin:6px;padding:12px 24px;font-size:1.1em;border-radius:12px;cursor:pointer}button.primary{background:#2563eb;color:#fff;border:none}button.ghost{background:#eee;border:1px solid #ccc}button.ok{background:#16a34a;color:#fff;border:none}button.danger{background:#dc2626;color:#fff;border:none}button.whatsapp{background:#25d366;color:#fff;border:none}#quiz,#result,#protectedContent{display:none;margin-top:16px}input,textarea,select{padding:8px;border-radius:8px;border:1px solid #ddd;margin-top:4px}input.short{width:180px;text-align:center}textarea{width:90%}.pill{display:inline-block;padding:2px 8px;background:#eef2ff;border-radius:999px;color:#2563eb;margin:4px}.muted{color:#666;font-size:.9em}.row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:16px}.correct{color:#16a34a;font-weight:bold}.incorrect{color:#dc2626;font-weight:bold}.hidden{display:none}</style></head><body><div id="protectedContent" class="card"><h1>Treinamento Professor SEDF - Pós Edital</h1><button id="toggleVoice" class="ghost">🗣 Ativar Ler</button><div id="userInfo" class="card"><label>ID do dispositivo</label><div class="row"><input id="userIdBox" readonly class="short"/><button id="copyIdBtn" class="ghost">📋 Copiar</button></div><label>Contato Master (WhatsApp)</label><div class="row"><a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none;padding:10px 14px;border-radius:10px;">📞 Abrir WhatsApp</a></div><div style="margin-top:10px;"><button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button></div><div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção some.</div></div><div id="menu" class="card"><label for="numQuestions">Quantas questões?</label><input type="number" id="numQuestions" min="1" value="10" class="short"><div class="row" style="margin-top:10px;flex-wrap:wrap;"><button onclick="startQuiz('Língua Portuguesa')" class="primary">Língua Portuguesa</button><button onclick="startQuiz('RIDE')" class="primary">RIDE</button><button onclick="startQuiz('Legislação')" class="primary">Legislação</button><button onclick="startQuiz('Temas Educacionais')" class="primary">Temas Educacionais</button><button onclick="startQuiz('Educação Inclusiva')" class="primary">Educação Inclusiva</button></div><div id="demoNote" class="muted hidden">ℹ️ Modo demo: até <b>5 questões</b> por tópico.</div></div></div><div id="quiz" class="card"><div id="counter" class="pill"></div><div id="question" style="margin:12px 0;font-weight:bold"></div><div class="row"><button id="btnTrue" onclick="answer(true)" class="ok">Certo</button><button id="btnFalse" onclick="answer(false)" class="danger">Errado</button></div><div id="comment" class="muted" style="margin-top:10px"></div><div class="row" style="margin-top:12px"><button onclick="nextQuestion()" class="primary">Próxima questão</button><button onclick="backToMenu()" class="ghost">Voltar ao menu</button></div></div><div id="result" class="card"><h3>Fim do Quiz!</h3><p id="score"></p><button onclick="restartQuiz()" class="primary">Reiniciar</button></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>const supabaseUrl='https://nqhthypeljupfftlmwsz.supabase.co',supabaseKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MjU4MDc3fQ.4JcgkPqt-yMrCLNdP65nQL99xyhDs2DrgR-C-CrT4z4',supabase=supabase.createClient(supabaseUrl,supabaseKey);let userType=localStorage.getItem('userType')||'demo',userId=localStorage.getItem('userId')||crypto.randomUUID();localStorage.setItem('userId',userId),document.getElementById('userIdBox').value=userId,document.getElementById('waLink').href='https://wa.me/5561999251102?text=Meu%20ID:'+encodeURIComponent(userId),document.getElementById('copyIdBtn').addEventListener('click',()=>{navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!'))});function enterPassword(){let e=prompt("Digite a senha fornecida pelo Master:");e==="12345"?(userType="full",localStorage.setItem("userType","full"),alert("Acesso liberado!"),document.getElementById("protectedContent").style.display="none"):alert("Senha incorreta.")}userType!=='master'&&(document.getElementById('protectedContent').style.display='block',userType==='demo'&&document.getElementById('demoNote').classList.remove('hidden'));let voiceEnabled=!1;document.getElementById('toggleVoice').onclick=()=>{voiceEnabled=!voiceEnabled,document.getElementById('toggleVoice').innerText=voiceEnabled?'🗣 Desativar Ler':'🗣 Ativar Ler'};let quizCurrent=[],currentIndex=0,score=0,answered=!1,maxDemo=5,blocoMap={},localQuestions={'Língua Portuguesa':[{"enunciado":"Exemplo LP 1","correta":!0,"comentario":"Comentário LP 1"},{"enunciado":"Exemplo LP 2","correta":!1,"comentario":"Comentário LP 2"}],'RIDE':[{"enunciado":"Exemplo RIDE 1","correta":!0,"comentario":"Comentário RIDE 1"}],'Legislação':[{"enunciado":"Exemplo Leg 1","correta":!1,"comentario":"Comentário Leg 1"}],'Temas Educacionais':[{"enunciado":"Exemplo TE 1","correta":!0,"comentario":"Comentário TE 1"}],'Educação Inclusiva':[{"enunciado":"Exemplo EI 1","correta":!0,"comentario":"Comentário EI 1"}]};async function fetchBlocos(){try{const{data:e,error:t}=await supabase.from('blocos').select('*');if(t)throw t;e.forEach(t=>blocoMap[t.titulo]=t.id)}catch(e){console.warn("Não foi possível carregar do Supabase, usando offline.",e),blocoMap={'Língua Portuguesa':'offline','RIDE':'offline','Legislação':'offline','Temas Educacionais':'offline','Educação Inclusiva':'offline'}}}fetchBlocos();async function startQuiz(e){try{quizCurrent=blocoMap[e]!=='offline'?(await supabase.from('questoes').select('*').eq('bloco_id',blocoMap[e])).data||[]:localQuestions[e]||[],userType==='demo'&&(quizCurrent=quizCurrent.slice(0,maxDemo)),currentIndex=0,score=0,showQuestion()}catch(t){alert("Erro ao carregar questões. Veja console."),console.error(t)}}function showQuestion(){if(currentIndex>=quizCurrent.length)return endQuiz();const e=quizCurrent[currentIndex];answered=!1,document.getElementById('quiz').style.display='block',document.getElementById('question').innerText=e.enunciado,document.getElementById('comment').innerText='',document.getElementById('counter').innerText=`Questão ${currentIndex+1} de ${quizCurrent.length}`,voiceEnabled&&(u=new SpeechSynthesisUtterance(e.enunciado),u.lang='pt-BR',u.rate=1.5,window.speechSynthesis.cancel(),window.speechSynthesis.speak(u))}function answer(e){if(answered)return;answered=!0;const t=quizCurrent[currentIndex],o=t.correta===e?"Você acertou!":"Você errou!";document.getElementById('comment').innerHTML=`<span class="${t.correta===e?'correct':'incorrect'}">${o} ${t.comentario}</span>`,t.correta===e&&score++,voiceEnabled&&(u=new SpeechSynthesisUtterance(o+" "+t.comentario),u.lang='pt-BR',u.rate=1.5,window.speechSynthesis.cancel(),window.speechSynthesis.speak(u))}function nextQuestion(){currentIndex++,showQuestion()}function backToMenu(){document.getElementById('quiz').style.display='none',document.getElementById('result').style.display='none'}function endQuiz(){document.getElementById('quiz').style.display='none',document.getElementById('result').style.display='block',document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`}function restartQuiz(){currentIndex=0,score=0,document.getElementById('result').style.display='none'}</script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treinamento Professor SEDF - Pós Edital</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:20px; text-align:center; background:#f4f4f9; color:#333; }
+button { margin:6px; padding:12px 24px; font-size:1.1em; border-radius:12px; cursor:pointer; }
+button.primary { background:#2563eb; color:#fff; border:none; }
+button.ghost { background:#eee; border:1px solid #ccc; }
+button.ok { background:#16a34a; color:#fff; border:none; }
+button.danger { background:#dc2626; color:#fff; border:none; }
+button.whatsapp { background:#25d366; color:#fff; border:none; }
+#quiz, #result, #protectedContent { display:none; margin-top:16px; }
+input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd; margin-top:4px; }
+input.short { width:180px; text-align:center; }
+textarea { width:90%; }
+.pill { display:inline-block; padding:2px 8px; background:#eef2ff; border-radius:999px; color:#2563eb; margin:4px; }
+.muted { color:#666; font-size:0.9em; }
+.row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+.card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
+.correct { color:#16a34a; font-weight:bold; }
+.incorrect { color:#dc2626; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<div id="protectedContent" class="card">
+  <h1>Treinamento Professor SEDF - Pós Edital</h1>
+  <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
+
+  <div id="userInfo" class="card">
+    <label>ID do dispositivo</label>
+    <div class="row">
+      <input id="userIdBox" readonly class="short"/>
+      <button id="copyIdBtn" class="ghost">📋 Copiar</button>
+    </div>
+    <label>Contato Master (WhatsApp)</label>
+    <div class="row">
+      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">📞 Abrir WhatsApp</a>
+    </div>
+    <div style="margin-top:10px;">
+      <button onclick="enterPassword()" class="primary">🔑 Inserir Senha Manual</button>
+    </div>
+    <div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção some.</div>
+  </div>
+
+  <div id="menu" class="card">
+    <label for="numQuestions">Quantas questões?</label>
+    <input type="number" id="numQuestions" min="1" value="10" class="short">
+    <div class="row" style="margin-top:10px; flex-wrap:wrap;">
+      <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+      <button onclick="startQuiz('RIDE')" class="primary">RIDE</button>
+      <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+      <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+      <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+    </div>
+    <div id="demoNote" class="muted hidden">ℹ️ Modo demo: até <b>5 questões</b> por tópico.</div>
+  </div>
+</div>
+
+<div id="quiz" class="card">
+  <div id="counter" class="pill"></div>
+  <div id="question" style="margin:12px 0; font-weight:bold;"></div>
+  <div class="row">
+    <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
+    <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
+  </div>
+  <div id="comment" class="muted" style="margin-top:10px;"></div>
+  <div class="row" style="margin-top:12px;">
+    <button onclick="nextQuestion()" class="primary">Próxima questão</button>
+    <button onclick="backToMenu()" class="ghost">Voltar ao menu</button>
+  </div>
+</div>
+
+<div id="result" class="card">
+  <h3>Fim do Quiz!</h3>
+  <p id="score"></p>
+  <button onclick="restartQuiz()" class="primary">Reiniciar</button>
+</div>
+
+<!-- === Scripts === -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="quiz.js"></script>       <!-- inicializa supabase -->
+<script src="controle.js"></script>   <!-- usa supabase -->
+
+</body>
+</html>
