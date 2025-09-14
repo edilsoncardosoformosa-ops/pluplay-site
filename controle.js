@@ -1,44 +1,46 @@
-// ================= Configuração Usuário =================
+// Controle do quiz e dados do usuário
 let userType = localStorage.getItem('userType') || 'demo';
 let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
-
 document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:' + encodeURIComponent(userId);
 
 document.getElementById('copyIdBtn').addEventListener('click', () => {
-  const t = document.getElementById('userIdBox').value;
-  if(navigator.clipboard) navigator.clipboard.writeText(t).then(()=>alert('ID copiado!')).catch(()=>fallbackCopy(t));
-  else fallbackCopy(t);
+  const id = document.getElementById('userIdBox').value;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(id).then(() => alert('ID copiado!')).catch(() => fallbackCopy(id));
+  } else fallbackCopy(id);
 });
 
-function fallbackCopy(t){
-  const e = document.createElement('textarea');
-  e.value = t;
-  document.body.appendChild(e);
-  e.select();
+function fallbackCopy(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
   document.execCommand('copy');
-  document.body.removeChild(e);
+  document.body.removeChild(textarea);
   alert('ID copiado!');
 }
 
-function enterPassword(){
+function enterPassword() {
   let senha = prompt("Digite a senha fornecida pelo Master:");
-  if(senha === "12345"){ // <- troque para sua senha
-    userType="full";
-    localStorage.setItem("userType","full");
+  if (senha === "12345") { // Troque para sua senha
+    userType = "full";
+    localStorage.setItem("userType", "full");
     alert("Acesso liberado!");
-    document.getElementById("protectedContent").style.display="none";
-  } else alert("Senha incorreta.");
+    document.getElementById("protectedContent").style.display = "none";
+  } else {
+    alert("Senha incorreta.");
+  }
 }
 
-if(userType!=='master'){
-  document.getElementById('protectedContent').style.display='block';
-  if(userType==='demo') document.getElementById('demoNote').classList.remove('hidden');
+if (userType !== 'master') {
+  document.getElementById('protectedContent').style.display = 'block';
+  if (userType === 'demo') document.getElementById('demoNote').classList.remove('hidden');
 }
 
-// ================= Voz =================
-let voiceEnabled=false;
+// Voz
+let voiceEnabled = false;
 document.getElementById('toggleVoice').onclick = () => {
   voiceEnabled = !voiceEnabled;
   document.getElementById('toggleVoice').innerText = voiceEnabled ? '🔇 Desativar Ler' : '🔊 Ativar Ler';
