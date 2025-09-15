@@ -24,7 +24,6 @@ label{font-weight:600}
 </style>
 </head>
 <body>
-
 <header id="masterHeader">
   <img src="logomarca.png" alt="Logo Plug & Play">
   <span class="muted">Master Admin</span>
@@ -137,140 +136,134 @@ label{font-weight:600}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4";
+const SUPABASE_URL="https://nqhthypeljupfftlmwsz.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5xaHRoeXBlbGp1cGZmdGxtd3N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2ODIwNzcsImV4cCI6MjA3MzI1ODA3N30.4JcgkPqt-yMrLCNdP65nQL99xyhDs2DrgR-C-CrT4z4";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-</script>
 
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const masterHeader = document.getElementById('masterHeader');
-  const appControls = document.getElementById('appControls');
-  let clickCount = 0;
+const masterHeader = document.getElementById('masterHeader');
+const appControls = document.getElementById('appControls');
+let clickCount = 0;
 
-  masterHeader.addEventListener('click', () => {
-    clickCount++;
-    setTimeout(() => {
-      if(clickCount>=2){ appControls.classList.remove('hidden'); clickCount=0; } else { clickCount=0; }
-    },300);
-  });
-
-  const hideAddQuestion = ()=>document.getElementById('addQuestionForm').classList.add('hidden');
-  const hideAddBlock = ()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
-  const hideManageUsers = ()=>document.getElementById('manageUsers').classList.add('hidden');
-  const hideManageQuestions = ()=>document.getElementById('manageQuestions').classList.add('hidden');
-  const hideEditModal = ()=>document.getElementById('editQuestionModal').classList.add('hidden');
-
-  document.getElementById('btnAddQ').addEventListener('click', ()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
-  document.getElementById('btnAddBlock').addEventListener('click', ()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
-  document.getElementById('btnManageUsers').addEventListener('click', ()=>{document.getElementById('manageUsers').classList.remove('hidden'); renderUserList();});
-  document.getElementById('btnManageQs').addEventListener('click', ()=>{document.getElementById('manageQuestions').classList.remove('hidden'); renderQuestionsList();});
-
-  // Inicializa quizData e users
-  window.quizData = JSON.parse(localStorage.getItem('quizData')||'{}');
-  let users = JSON.parse(localStorage.getItem('users')||'[]');
-
-  // Funções de renderização
-  function renderUserList(){
-    let ul=document.getElementById('userList'); ul.innerHTML='';
-    users.forEach((u,i)=>{
-      let li=document.createElement('li'); 
-      li.textContent=`${u.id} - ${u.note}`;
-      let btnDel=document.createElement('button'); btnDel.textContent='Revogar'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
-btnDel.onclick = () => { 
-        if(confirm('Revogar usuário?')) { 
-          users.splice(i,1); 
-          localStorage.setItem('users', JSON.stringify(users)); 
-          renderUserList(); 
-        } 
-      };
-      li.appendChild(btnDel);
-      ul.appendChild(li);
-    });
-  }
-
-  // Adicionar usuário manual
-  document.getElementById('addManualUserBtn').addEventListener('click', () => {
-    let id = document.getElementById('manualUserId').value;
-    let note = document.getElementById('manualUserNote').value;
-    if(!id) { alert('Digite ID'); return; }
-    users.push({id,note});
-    localStorage.setItem('users', JSON.stringify(users));
-    renderUserList();
-  });
-
-  // Função para renderizar questões
-  let editingIndex = null;
-  let editingTopic = null;
-  function renderQuestionsList() {
-    let container = document.getElementById('questionsList'); 
-    container.innerHTML = '';
-    if(!window.quizData) return;
-    let search = (document.getElementById('searchQuestion')?.value || '').toLowerCase();
-    let filterTopic = document.getElementById('filterTopic')?.value || '';
-    Object.keys(window.quizData).forEach(t => {
-      if(filterTopic && t !== filterTopic) return;
-      window.quizData[t].forEach((qObj,i) => {
-        if(search && !qObj.q.toLowerCase().includes(search) && !(qObj.c||'').toLowerCase().includes(search)) return;
-        let row = document.createElement('div'); row.className='row';
-        let left = document.createElement('div'); left.textContent=`[${t}] ${qObj.q}`;
-        let right = document.createElement('div'); right.textContent=qObj.a?'✓':'✗';
-
-        let btnEdit = document.createElement('button'); btnEdit.textContent='Editar'; btnEdit.className='ghost';
-        btnEdit.onclick = () => openEditModal(t,i);
-
-        let btnDel = document.createElement('button'); btnDel.textContent='Excluir'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
-        btnDel.onclick = () => { 
-          if(confirm('Excluir questão?')) { 
-            window.quizData[t].splice(i,1); 
-            localStorage.setItem('quizData', JSON.stringify(window.quizData)); 
-            renderQuestionsList(); 
-          } 
-        };
-
-        row.appendChild(left); row.appendChild(right); row.appendChild(btnEdit); row.appendChild(btnDel);
-        container.appendChild(row);
-      });
-    });
-  }
-
-  document.getElementById('searchQuestion')?.addEventListener('input', renderQuestionsList);
-  document.getElementById('filterTopic')?.addEventListener('change', renderQuestionsList);
-
-  // Abrir modal de edição
-  function openEditModal(topic,index) {
-    editingTopic = topic; editingIndex = index;
-    const q = window.quizData[topic][index];
-    document.getElementById('editTopic').value = topic;
-    document.getElementById('editQuestionText').value = q.q;
-    document.getElementById('editQuestionComment').value = q.c || '';
-    document.getElementById('editQuestionAnswer').value = q.a;
-    document.getElementById('editQuestionModal').classList.remove('hidden');
-  }
-
-  document.getElementById('saveEditBtn').addEventListener('click', () => {
-    let newTopic = document.getElementById('editTopic').value;
-    let q = document.getElementById('editQuestionText').value;
-    let c = document.getElementById('editQuestionComment').value;
-    let a = document.getElementById('editQuestionAnswer').value === 'true';
-    if(!q) { alert('Digite a pergunta'); return; }
-
-    let questionObj = {q,q,a,c};
-
-    // Remove do tópico antigo
-    window.quizData[editingTopic].splice(editingIndex,1);
-    if(!window.quizData[newTopic]) window.quizData[newTopic] = [];
-    window.quizData[newTopic].push(questionObj);
-
-    localStorage.setItem('quizData', JSON.stringify(window.quizData));
-    hideEditModal();
-    renderQuestionsList();
-  });
-
-  // Inicialização
-  renderQuestionsList();
-  renderUserList();
+masterHeader.addEventListener('click', () => {
+  clickCount++;
+  setTimeout(() => {
+    if(clickCount>=2){ appControls.classList.remove('hidden'); clickCount=0; } else clickCount=0;
+  }, 300);
 });
+
+const hideAddQuestion = ()=>document.getElementById('addQuestionForm').classList.add('hidden');
+const hideAddBlock = ()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
+const hideManageUsers = ()=>document.getElementById('manageUsers').classList.add('hidden');
+const hideManageQuestions = ()=>document.getElementById('manageQuestions').classList.add('hidden');
+const hideEditModal = ()=>document.getElementById('editQuestionModal').classList.add('hidden');
+
+// --- Variáveis globais ---
+let users = [];
+let quizData = {};
+
+// --- Funções Supabase ---
+async function loadUsers() {
+  let { data, error } = await supabase.from('usuarios').select('*');
+  if(error){ console.error(error); alert('Erro ao carregar usuários'); return; }
+  users = data;
+  renderUserList();
+}
+
+async function loadQuestions() {
+  let { data, error } = await supabase.from('questoes').select('*');
+  if(error){ console.error(error); alert('Erro ao carregar questões'); return; }
+  quizData = {};
+  data.forEach(q=>{
+    if(!quizData[q.bloco_id]) quizData[q.bloco_id]=[];
+    quizData[q.bloco_id].push({q:q.enunciado,a:q.correta,c:q.comentario});
+  });
+  renderQuestionsList();
+}
+
+async function addUser(id,note) {
+  const { error } = await supabase.from('usuarios').insert([{id,nome:note}]);
+  if(error){ alert('Erro ao adicionar usuário'); console.error(error); }
+  else loadUsers();
+}
+
+async function addQuestion(bloco, enunciado, correta, comentario) {
+  const { error } = await supabase.from('questoes').insert([{bloco_id:bloco,enunciado,correta,comentario}]);
+  if(error){ alert('Erro ao adicionar questão'); console.error(error); }
+  else loadQuestions();
+}
+
+// --- Renderizações ---
+function renderUserList() {
+  let ul = document.getElementById('userList'); ul.innerHTML='';
+  users.forEach((u,i)=>{
+    let li = document.createElement('li');
+    li.textContent=`${u.id} - ${u.nome||''}`;
+    let btnDel = document.createElement('button'); btnDel.textContent='Revogar'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
+    btnDel.onclick = async () => {
+      if(confirm('Revogar usuário?')){
+        const { error } = await supabase.from('usuarios').delete().eq('id', u.id);
+        if(error){ alert('Erro ao revogar'); console.error(error); return; }
+        loadUsers();
+      }
+    };
+    li.appendChild(btnDel);
+    ul.appendChild(li);
+  });
+}
+
+function renderQuestionsList() {
+  let container = document.getElementById('questionsList'); container.innerHTML='';
+  Object.keys(quizData).forEach(t=>{
+    quizData[t].forEach((qObj,i)=>{
+      let row = document.createElement('div'); row.className='row';
+      let left = document.createElement('div'); left.textContent=`[${t}] ${qObj.q}`;
+      let right = document.createElement('div'); right.textContent=qObj.a?'✓':'✗';
+
+      let btnEdit = document.createElement('button'); btnEdit.textContent='Editar'; btnEdit.className='ghost';
+      let btnDel = document.createElement('button'); btnDel.textContent='Excluir'; btnDel.className='ghost'; btnDel.style.marginLeft='6px';
+
+      btnDel.onclick = async () => {
+        if(confirm('Excluir questão?')){
+          const { error } = await supabase.from('questoes').delete().eq('enunciado', qObj.q);
+          if(error){ alert('Erro ao excluir questão'); console.error(error); return; }
+          loadQuestions();
+        }
+      };
+
+      row.appendChild(left); row.appendChild(right); row.appendChild(btnEdit); row.appendChild(btnDel);
+      container.appendChild(row);
+    });
+  });
+}
+
+// --- Eventos ---
+document.getElementById('btnAddQ').addEventListener('click', ()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
+document.getElementById('btnAddBlock').addEventListener('click', ()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
+document.getElementById('btnManageUsers').addEventListener('click', ()=>{document.getElementById('manageUsers').classList.remove('hidden'); loadUsers();});
+document.getElementById('btnManageQs').addEventListener('click', ()=>{document.getElementById('manageQuestions').classList.remove('hidden'); loadQuestions();});
+
+document.getElementById('saveQuestionBtn').addEventListener('click', ()=>{
+  let t = document.getElementById('newTopic').value,
+      q = document.getElementById('newQuestionText').value,
+      c = document.getElementById('newQuestionComment').value,
+      a = document.getElementById('newQuestionAnswer').value === 'true';
+  if(!q){ alert('Digite a pergunta'); return; }
+  addQuestion(t,q,a,c);
+  hideAddQuestion();
+});
+
+document.getElementById('addManualUserBtn').addEventListener('click', ()=>{
+  let id = document.getElementById('manualUserId').value;
+  let note = document.getElementById('manualUserNote').value;
+  if(!id){ alert('Digite ID'); return; }
+  addUser(id,note);
+  document.getElementById('manualUserId').value='';
+  document.getElementById('manualUserNote').value='';
+});
+
+// Inicialização
+loadUsers();
+loadQuestions();
 </script>
 </main>
 </body>
