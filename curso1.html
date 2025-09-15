@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Treinamento Professor SEDF - Pós Edital</title>
 <style>
 body{font-family:Arial,sans-serif;margin:0;padding:20px;text-align:center;background:#f4f4f9;color:#333}
@@ -22,58 +22,56 @@ textarea{width:90%}
 .card{background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:16px}
 .correct{color:#16a34a;font-weight:bold}
 .incorrect{color:#dc2626;font-weight:bold}
-.hidden{display:none !important;}
+.hidden{display:none}
 </style>
 </head>
 <body>
+
 <div id="protectedContent" class="card">
 <h1>Treinamento Professor SEDF - Pós Edital</h1>
 <button id="toggleVoice" class="ghost">🔊 Ativar Ler</button>
 
 <div id="userInfo" class="card">
-  <label>ID do dispositivo</label>
-  <div class="row">
-    <input id="userIdBox" readonly class="short"/>
-    <button id="copyIdBtn" class="ghost">📋 Copiar</button>
-  </div>
-
-  <label>Contato Master (WhatsApp)</label>
-  <div class="row">
-    <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none;padding:10px 14px;border-radius:10px">💬 Abrir WhatsApp</a>
-  </div>
-
-  <div style="margin-top:10px">
-    <button id="manualPasswordBtn" class="primary">🔑 Inserir senha manual</button>
-  </div>
-
-  <div id="demoNote" class="muted hidden">⚠ Modo demo: até <b>5 questões</b> por tópico.</div>
+<label>ID do dispositivo</label>
+<div class="row">
+<input id="userIdBox" readonly class="short"/>
+<button id="copyIdBtn" class="ghost">📋 Copiar</button>
+</div>
+<label>Contato Master (WhatsApp)</label>
+<div class="row">
+<a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none;padding:10px 14px;border-radius:10px">📞 Abrir WhatsApp</a>
+</div>
+<div style="margin-top:10px">
+<button id="manualPasswordBtn" class="primary">🔑 Inserir senha manual</button>
+</div>
+<div id="demoNote" class="muted hidden">⚠ Modo demo: até <b>5 questões</b> por tópico.</div>
 </div>
 
 <div id="menu" class="card">
-  <label for="numQuestions">Quantas questões?</label>
-  <input type="number" id="numQuestions" min="1" value="10" class="short">
-  <div class="row" style="margin-top:10px;flex-wrap:wrap">
-    <button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
-    <button onclick="startQuiz('ride')" class="primary">RIDE</button>
-    <button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
-    <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
-    <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
-  </div>
+<label for="numQuestions">Quantas questões?</label>
+<input type="number" id="numQuestions" min="1" value="10" class="short">
+<div class="row" style="margin-top:10px;flex-wrap:wrap">
+<button onclick="startQuiz('Lport')" class="primary">Língua Portuguesa</button>
+<button onclick="startQuiz('ride')" class="primary">RIDE</button>
+<button onclick="startQuiz('Legisla')" class="primary">Legislação</button>
+<button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
+<button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
+</div>
 </div>
 </div>
 
 <div id="quiz" class="card">
-  <div id="counter" class="pill"></div>
-  <div id="question" style="margin:12px 0;font-weight:bold"></div>
-  <div class="row">
-    <button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
-    <button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
-  </div>
-  <div id="comment" class="muted" style="margin-top:10px"></div>
-  <div class="row" style="margin-top:12px">
-    <button onclick="nextQuestion()" class="primary">Próxima questão</button>
-    <button onclick="backToMenu()" class="ghost">Voltar ao menu</button>
-  </div>
+<div id="counter" class="pill"></div>
+<div id="question" style="margin:12px 0;font-weight:bold"></div>
+<div class="row">
+<button id="btnTrue" onclick="answer(true)" class="ok">Certo</button>
+<button id="btnFalse" onclick="answer(false)" class="danger">Errado</button>
+</div>
+<div id="comment" class="muted" style="margin-top:10px"></div>
+<div class="row" style="margin-top:12px">
+<button onclick="nextQuestion()" class="primary">Próxima questão</button>
+<button onclick="backToMenu()" class="ghost">Voltar ao menu</button>
+</div>
 </div>
 
 <div id="result" class="card">
@@ -81,73 +79,34 @@ textarea{width:90%}
 <p id="score"></p>
 <button onclick="restartQuiz()" class="primary">Reiniciar</button>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ---------- Supabase ----------
-const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 // ---------- Variáveis ----------
-let userId = localStorage.getItem('userId') || crypto.randomUUID();
 let userType = localStorage.getItem('userType') || 'demo';
+let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
 document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:' + encodeURIComponent(userId);
 
-let voiceEnabled = false;
-let quizCurrent = [];
-let currentIndex = 0;
-let score = 0;
-const maxDemo = 5;
-
-// ---------- Funções utilitárias ----------
-function shuffleArray(a){ return a.sort(()=>Math.random()-0.5); }
-document.getElementById('toggleVoice').onclick = ()=>{
-  voiceEnabled = !voiceEnabled;
-  document.getElementById('toggleVoice').innerText = voiceEnabled?'🔇 Desativar Ler':'🔊 Ativar Ler';
-};
-document.getElementById('copyIdBtn').addEventListener('click',()=>{
+// ---------- Copiar ID ----------
+document.getElementById('copyIdBtn').addEventListener('click', ()=>{
   const t = document.getElementById('userIdBox').value;
-  navigator.clipboard?.writeText(t).then(()=>alert('ID copiado!')).catch(()=>{
-    const ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta); alert('ID copiado!');
-  });
+  navigator.clipboard?.writeText(t).then(()=>alert('ID copiado!'))
 });
 
-// ---------- Autenticação ----------
-async function checkUser(id){
-  try{
-    const { data, error } = await supabaseClient.from('usuarios').select('*').eq('id', id).limit(1);
-    if(error){ console.error(error); return; }
-    if(data && data.length>0){
-      userType = 'full';
-      localStorage.setItem('userType', 'full');
-      document.getElementById('demoNote').innerText = '✔ Você agora pode responder todas as questões!';
-    } else {
-      userType = 'demo';
-      localStorage.setItem('userType', 'demo');
-      document.getElementById('demoNote').classList.remove('hidden');
-    }
-  }catch(err){ console.error('Erro auth:', err); userType='demo'; }
+// ---------- Voz ----------
+let voiceEnabled=false;
+document.getElementById('toggleVoice').onclick = ()=>{
+  voiceEnabled=!voiceEnabled;
+  document.getElementById('toggleVoice').innerText = voiceEnabled ? '🔇 Desativar Ler' : '🔊 Ativar Ler';
 }
 
-// ---------- Senha manual ----------
-document.getElementById('manualPasswordBtn').addEventListener('click', async ()=>{
-  let s = prompt('Digite a senha fornecida pelo Master:');
-  if(!s) return;
-  try{
-    const { data } = await supabaseClient.from('usuarios').select('*').eq('tipo', s).limit(1);
-    if(data && data.length>0){ alert('Senha já está em uso em outro dispositivo!'); return; }
-    const { error } = await supabaseClient.from('usuarios').insert([{nome:'manual', tipo: s}]);
-    if(error){ alert('Erro ao registrar senha.'); console.error(error); return; }
-    userType='full'; localStorage.setItem('userType','full');
-    alert('Acesso liberado com senha manual!');
-    document.getElementById('demoNote').innerText = '✔ Você agora pode responder todas as questões!';
-  }catch(err){ console.error(err); alert('Erro inesperado'); }
-});
+// ---------- Supabase ----------
+const SUPABASE_URL="https://nqhthypeljupfftlmwsz.supabase.co";
+const SUPABASE_KEY="sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ---------- Carregar questões ----------
 window.quizData = {};
 const blocoUuidToKey = {
   '11111111-1111-1111-1111-111111111111':'Lport',
@@ -157,35 +116,23 @@ const blocoUuidToKey = {
   '55555555-5555-5555-5555-555555555555':'Eduincl'
 };
 
-async function loadQuestions(){
-  try{
-    const { data, error } = await supabaseClient.from('questoes').select('id, bloco_id, enunciado, correta, comentario');
-    if(error){ console.error(error); alert('Erro ao carregar questões'); return; }
-    if(!data || data.length===0){
-      Object.values(blocoUuidToKey).forEach(k=>window.quizData[k]=[]);
-      return;
-    }
-    data.forEach(item=>{
-      const topicKey = blocoUuidToKey[item.bloco_id] || item.bloco_id || 'unknown';
-      if(!window.quizData[topicKey]) window.quizData[topicKey] = [];
-      window.quizData[topicKey].push({q:item.enunciado,a:item.correta,c:item.comentario});
-    });
-    console.log('Questões carregadas:', window.quizData);
-  }catch(err){ console.error('Erro inesperado:', err); }
-}
+// ---------- Funções de quiz ----------
+let quizCurrent=[],currentIndex=0,score=0,answered=false,maxDemo=5;
+function shuffleArray(a){ return a.sort(()=>Math.random()-0.5); }
 
-// ---------- Funções do Quiz ----------
 function startQuiz(topic){
-  let n = parseInt(document.getElementById('numQuestions').value)||10;
-  quizCurrent = window.quizData[topic]||[];
+  let n=parseInt(document.getElementById('numQuestions').value)||10;
+  quizCurrent = window.quizData[topic] || [];
   if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
   quizCurrent = shuffleArray(quizCurrent).slice(0,n);
-  currentIndex=0; score=0; showQuestion();
+  currentIndex=0; score=0;
+  showQuestion();
 }
 
 function showQuestion(){
   if(currentIndex>=quizCurrent.length){ endQuiz(); return; }
-  const q = quizCurrent[currentIndex]; answered=false;
+  const q = quizCurrent[currentIndex];
+  answered=false;
   document.getElementById('quiz').style.display='block';
   document.getElementById('question').innerText = q.q;
   document.getElementById('comment').innerText = '';
@@ -197,10 +144,11 @@ function showQuestion(){
 }
 
 function answer(val){
-  if(answered) return; answered=true;
+  if(answered) return;
+  answered=true;
   const q = quizCurrent[currentIndex];
   let acertou = q.a===val;
-  let result = acertou?'Você acertou! ':'Você errou! ';
+  let result = acertou ? 'Você acertou! ' : 'Você errou! ';
   document.getElementById('comment').innerHTML = `<span class="${acertou?'correct':'incorrect'}">${result}${q.c}</span>`;
   if(acertou) score++;
   if(voiceEnabled){
@@ -211,19 +159,55 @@ function answer(val){
 
 function nextQuestion(){ currentIndex++; showQuestion(); }
 function backToMenu(){ document.getElementById('quiz').style.display='none'; document.getElementById('result').style.display='none'; }
-function endQuiz(){
-  document.getElementById('quiz').style.display='none';
+function endQuiz(){ 
+  document.getElementById('quiz').style.display='none'; 
   document.getElementById('result').style.display='block';
   document.getElementById('score').innerText = `Você acertou ${score} de ${quizCurrent.length} questões.`;
 }
 function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').style.display='none'; }
 
-// ---------- Inicialização ----------
-(async ()=>{
-  await loadQuestions();
-  await checkUser(userId);
-  document.getElementById('protectedContent').style.display = 'block';
-})();
+// ---------- Carregar questões ----------
+async function loadQuestions(){
+  try{
+    const { data, error } = await supabaseClient.from('questoes').select('id, bloco_id, enunciado, correta, comentario');
+    if(error){ console.error(error); return; }
+    if(!data || data.length===0){ Object.values(blocoUuidToKey).forEach(k=>window.quizData[k]=[]); return; }
+    data.forEach(item=>{
+      const topicKey = blocoUuidToKey[item.bloco_id] || item.bloco_id || 'unknown';
+      if(!window.quizData[topicKey]) window.quizData[topicKey]=[];
+      window.quizData[topicKey].push({q:item.enunciado,a:item.correta,c:item.comentario});
+    });
+    console.log('Questões carregadas:',window.quizData);
+  }catch(err){ console.error(err); }
+}
+loadQuestions();
+
+// ---------- Autenticação ----------
+async function checkUser(userId){
+  try{
+    const { data } = await supabaseClient.from('usuarios').select('*').eq('id',userId).limit(1);
+    if(data && data.length>0 && data[0].tipo==='full'){
+      userType='full';
+      document.getElementById('demoNote').innerText='✔ Você agora pode responder todas as questões!';
+    } else {
+      userType='demo';
+      document.getElementById('demoNote').classList.remove('hidden');
+    }
+  }catch(err){ console.error(err); }
+}
+checkUser(userId);
+
+// ---------- Senha manual ----------
+document.getElementById('manualPasswordBtn').addEventListener('click', async ()=>{
+  let s = prompt('Digite a senha fornecida pelo Master:');
+  if(!s) return;
+  const { data } = await supabaseClient.from('usuarios').select('*').eq('tipo', s).limit(1);
+  if(data && data.length>0){ alert('Senha já está em uso em outro dispositivo!'); return; }
+  // Inserir temporariamente a senha no tipo
+  await supabaseClient.from('usuarios').insert([{id:userId,nome:'Manual',tipo:s}]);
+  userType='full';
+  document.getElementById('demoNote').innerText='✔ Você agora pode responder todas as questões!';
+});
 </script>
 </body>
 </html>
