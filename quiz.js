@@ -32,4 +32,36 @@ function showQuestion(){
     const q = quizCurrent[currentIndex];
     document.getElementById('question').innerText = q.enunciado;
     document.getElementById('comment').innerText = '';
-    document.getElementById('counter').innerText = `Questão ${currentIndex+1} de
+    document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
+}
+
+function answer(val){
+    if(answered) return;
+    answered = true;
+    const q = quizCurrent[currentIndex];
+    const correct = (q.correta === val);
+    document.getElementById('comment').innerHTML = `<span class="${correct?'correct':'incorrect'}">${correct?'Você acertou!':'Você errou!'} ${q.comentario || ''}</span>`;
+    if(correct) score++;
+}
+
+function nextQuestion(){ 
+    currentIndex++; 
+    showQuestion(); 
+}
+
+function backToMenu(){
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('menu').style.display='block';
+}
+
+function endQuiz(){
+    document.getElementById('quiz').style.display='none';
+    document.getElementById('result').style.display='block';
+    document.getElementById('score').innerText = `Você acertou ${score} de ${quizCurrent.length} questões.`;
+}
+
+function restartQuiz(){
+    currentIndex = 0; score = 0;
+    document.getElementById('result').style.display='none';
+    document.getElementById('menu').style.display='block';
+}
