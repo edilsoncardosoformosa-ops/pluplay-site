@@ -17,11 +17,13 @@ input, textarea, select { padding:8px; border-radius:8px; border:1px solid #ddd;
 input.short { width:180px; text-align:center; }
 textarea { width:90%; }
 .pill { display:inline-block; padding:2px 8px; background:#eef2ff; border-radius:999px; color:#2563eb; margin:4px; }
+.pill.full { background:#16a34a; color:#fff; }
 .muted { color:#666; font-size:0.9em; }
 .row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
 .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.06); margin-bottom:16px; }
 .correct { color:#16a34a; font-weight:bold; }
 .incorrect { color:#dc2626; font-weight:bold; }
+.hidden { display:none; }
 </style>
 </head>
 <body>
@@ -38,9 +40,8 @@ textarea { width:90%; }
     </div>
     <label>Contato Master (WhatsApp)</label>
     <div class="row">
-      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">📞 Abrir WhatsApp</a>
+      <a id="waLink" target="_blank" class="whatsapp" style="text-decoration:none; padding:10px 14px; border-radius:10px;">💬 Abrir WhatsApp</a>
     </div>
-    <div class="muted">Envie seu ID para solicitar liberação. Ao ser liberado via Master, esta seção continua visível mas a tarja demo é removida.</div>
   </div>
 
   <div id="menu" class="card">
@@ -53,7 +54,7 @@ textarea { width:90%; }
       <button onclick="startQuiz('TemaEdu')" class="primary">Temas Educacionais</button>
       <button onclick="startQuiz('Eduincl')" class="primary">Educação Inclusiva</button>
     </div>
-    <div id="demoNote" class="muted hidden">⚠ Modo demo: até <b>5 questões</b> por tópico.</div>
+    <div id="demoNote" class="muted">⚠️ Modo demo: até <b>5 questões</b> por tópico.</div>
   </div>
 </div>
 
@@ -79,60 +80,30 @@ textarea { width:90%; }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* Configuração Supabase */
+// ---------- Supabase ----------
 const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co";
-const SUPABASE_KEY = "COLOQUE_AQUI_SUA_CHAVE_PUBLISHABLE";
+const SUPABASE_KEY = "SUA_CHAVE_PUBLISHABLE_AQUI";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* Controle de usuário */
+// ---------- Controle de usuário ----------
+let userType = localStorage.getItem('userType') || 'demo';
 let userId = localStorage.getItem('userId') || crypto.randomUUID();
 localStorage.setItem('userId', userId);
 document.getElementById('userIdBox').value = userId;
 document.getElementById('waLink').href = 'https://wa.me/5561999251102?text=Meu%20ID:%20'+encodeURIComponent(userId);
 
 document.getElementById('copyIdBtn').addEventListener('click', () => {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!'));
-  } else {
-    const textarea = document.createElement('textarea');
-    textarea.value = userId;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    alert('ID copiado!');
-  }
+  navigator.clipboard.writeText(userId).then(()=>alert('ID copiado!')).catch(()=>alert('Não foi possível copiar'));
 });
 
-let userType = 'demo'; // padrão
-async function checkUserAccess() {
-  try {
-    const { data, error } = await supabaseClient.from('usuarios').select('*').eq('tipo', userId).limit(1);
-    if(error) { console.error('Erro supabase:', error); return; }
-    userType = (data && data.length>0) ? 'full' : 'demo';
-    localStorage.setItem('userType', userType);
-
-    document.getElementById('protectedContent').style.display = 'block';
-    updateDemoNote();
-  } catch(err){
-    console.error('Erro checkUserAccess:', err);
-  }
-}
-
-function updateDemoNote() {
-  const demoNote = document.getElementById('demoNote');
-  if(userType==='demo') demoNote.classList.remove('hidden');
-  else demoNote.classList.add('hidden');
-}
-
-/* Voz */
+// ---------- Voz ----------
 let voiceEnabled=false;
 document.getElementById('toggleVoice').onclick = ()=>{
-  voiceEnabled=!voiceEnabled;
-  document.getElementById('toggleVoice').innerText=voiceEnabled?'🔇 Desativar Ler':'🔊 Ativar Ler';
-};
+  voiceEnabled = !voiceEnabled;
+  document.getElementById('toggleVoice').innerText = voiceEnabled ? '🔇 Desativar Ler' : '🔊 Ativar Ler';
+}
 
-/* Quiz */
+// ---------- Quiz ----------
 let quizCurrent=[], currentIndex=0, score=0, answered=false;
 const maxDemo = 5;
 
@@ -144,7 +115,6 @@ function startQuiz(topic){
   if(userType==='demo') quizCurrent = quizCurrent.slice(0,maxDemo);
   quizCurrent = shuffleArray(quizCurrent).slice(0,numQ);
   currentIndex=0; score=0;
-  updateDemoNote();
   showQuestion();
 }
 
@@ -158,8 +128,7 @@ function showQuestion(){
   document.getElementById('counter').innerText = `Questão ${currentIndex+1} de ${quizCurrent.length}`;
   if(voiceEnabled){
     let u = new SpeechSynthesisUtterance(q.q);
-    u.lang='pt-BR'; u.rate=1.5;
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   }
 }
 
@@ -172,8 +141,7 @@ function answer(val){
   if(q.a===val) score++;
   if(voiceEnabled){
     let u = new SpeechSynthesisUtterance(result + " " + q.c);
-    u.lang='pt-BR'; u.rate=1.5;
-    window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
+    u.lang='pt-BR'; u.rate=1.5; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
   }
 }
 
@@ -182,11 +150,11 @@ function backToMenu(){ document.getElementById('quiz').style.display='none'; doc
 function endQuiz(){ 
   document.getElementById('quiz').style.display='none'; 
   document.getElementById('result').style.display='block'; 
-  document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`; 
+  document.getElementById('score').innerText=`Você acertou ${score} de ${quizCurrent.length} questões.`;
 }
 function restartQuiz(){ currentIndex=0; score=0; document.getElementById('result').style.display='none'; }
 
-/* Carregamento de questões */
+// ---------- Carregar questões ----------
 const blocoUuidToKey = {
   '11111111-1111-1111-1111-111111111111': 'Lport',
   '22222222-2222-2222-2222-222222222222': 'ride',
@@ -198,26 +166,43 @@ const blocoUuidToKey = {
 window.quizData = {};
 
 async function loadQuestions(){
-  try{
+  try {
     const { data, error } = await supabaseClient
       .from('questoes')
       .select('id, bloco_id, enunciado, correta, comentario');
-    if(error){ console.error('Erro supabase:', error); return; }
+    if(error){ console.error('Erro supabase:', error); alert('Erro ao carregar questões. Veja console.'); return; }
     data.forEach(item=>{
-      const topicKey = blocoUuidToKey[item.bloco_id] || item.bloco_id || 'unknown';
-      if(!window.quizData[topicKey]) window.quizData[topicKey]=[];
-      window.quizData[topicKey].push({
-        q:item.enunciado,
-        a:item.correta,
-        c:item.comentario
-      });
+      const topicKey = blocoUuidToKey[item.bloco_id] || 'unknown';
+      if(!window.quizData[topicKey]) window.quizData[topicKey] = [];
+      window.quizData[topicKey].push({q:item.enunciado, a:item.correta, c:item.comentario});
     });
     console.log('Questões carregadas:', window.quizData);
-  }catch(err){ console.error('Erro inesperado:', err); }
+  } catch(err){ console.error('Erro inesperado:', err); }
 }
 
-checkUserAccess();
-loadQuestions();
+// ---------- Verificar acesso por ID ----------
+async function checkUserAccess(){
+  try{
+    const { data, error } = await supabaseClient
+      .from('usuarios')
+      .select('id, tipo')
+      .eq('tipo', userId)
+      .limit(1);
+    if(error){ console.error('Erro supabase:', error); return; }
+    if(data && data.length>0){
+      userType='full';
+      localStorage.setItem('userType','full');
+      document.getElementById('demoNote').classList.add('hidden'); // remove tarja demo
+    } else {
+      userType='demo';
+      document.getElementById('demoNote').classList.remove('hidden');
+    }
+    document.getElementById('protectedContent').style.display='block';
+  } catch(err){ console.error('Erro inesperado:', err); }
+}
+
+// ---------- Inicializa ----------
+loadQuestions().then(()=>checkUserAccess());
 </script>
 
 </body>
