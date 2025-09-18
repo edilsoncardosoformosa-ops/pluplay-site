@@ -1,180 +1,104 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Master Admin</title><style>:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}header img{height:44px}main{padding:20px}.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}button.ghost{background:#eee;color:#222}.grid{display:grid;gap:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}label{font-weight:600}.muted{color:#666;font-size:.95rem}.pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}.hidden{display:none!important}@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}</style></head><body><header id="masterHeader"><img src="logomarca.png" alt="Logo Plug & Play"><span class="muted">Master Admin</span></header><main>
-
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Master Admin</title><style>:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:var(--bg);color:var(--fg)}header{background:var(--p);color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}header img{height:44px}main{padding:20px}.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}button{cursor:pointer;border:0;border-radius:8px;padding:8px 12px;background:var(--p);color:#fff}button.ghost{background:#eee;color:#222}.grid{display:grid;gap:12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}input,textarea,select{width:100%;padding:8px;border:1px solid #ddd;border-radius:6px}label{font-weight:600}.muted{color:#666;font-size:.95rem}.pill{display:inline-block;padding:4px 8px;background:#eef2ff;border-radius:999px;color:#2563eb}.hidden{display:none!important}@media(max-width:720px){header{flex-direction:column;align-items:flex-start}}</style></head><body>
+<header id="masterHeader"><img src="logomarca.png" alt="Logo Plug & Play"><span class="muted">Master Admin</span></header>
+<main>
 <div id="appControls" class="hidden">
-<button id="btnAddQ">➕ Adicionar Questão</button>
-<button id="btnAddBlock">➕ Adicionar Bloco</button>
-<button id="btnManageUsers">👤 Gerenciar Usuários</button>
-<button id="btnManageQs">📋 Gerenciar Questões</button>
+  <button id="btnAddQ">➕ Adicionar Questão</button>
+  <button id="btnAddBlock">➕ Adicionar Bloco</button>
+  <button id="btnManageUsers">👤 Gerenciar Usuários</button>
+  <button id="btnManageQs">📝 Gerenciar Questões</button>
 </div>
 
 <div id="addQuestionForm" class="card hidden">
-<h3>Adicionar Questão</h3>
-<label>Tópico</label>
-<select id="newTopic">
-<option value="Lport">Língua Portuguesa</option>
-<option value="ride">RIDE</option>
-<option value="Legisla">Legislação</option>
-<option value="TemaEdu">Temas Educacionais</option>
-<option value="Eduincl">Educação Inclusiva</option>
-</select>
-<label>Pergunta</label><textarea id="newQuestionText" rows="3"></textarea>
-<label>Comentário</label><textarea id="newQuestionComment" rows="2"></textarea>
-<label>Resposta correta</label>
-<select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
-<div class="row" style="margin-top:6px"><button id="saveQuestionBtn">Salvar</button><button onclick="hideAddQuestion()" class="ghost">Cancelar</button></div>
+  <h3>Adicionar Questão</h3>
+  <label>Tópico</label>
+  <select id="newTopic"></select>
+  <label>Pergunta</label><textarea id="newQuestionText" rows="3"></textarea>
+  <label>Comentário</label><textarea id="newQuestionComment" rows="2"></textarea>
+  <label>Resposta correta</label><select id="newQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
+  <div class="row" style="margin-top:6px"><button id="saveQuestionBtn">Salvar</button><button onclick="hideAddQuestion()" class="ghost">Cancelar</button></div>
 </div>
 
 <div id="addQuestionBlockForm" class="card hidden">
-<h3>Adicionar Bloco</h3>
-<label>Tópico</label>
-<select id="newBlockTopic">
-<option value="Lport">Língua Portuguesa</option>
-<option value="ride">RIDE</option>
-<option value="Legisla">Legislação</option>
-<option value="TemaEdu">Temas Educacionais</option>
-<option value="Eduincl">Educação Inclusiva</option>
-</select>
-<label>Formato (uma por linha, JSON)</label>
-<textarea id="newBlockQuestions" rows="6" placeholder='{ "q":"Pergunta", "a":true, "c":"Comentário" }'></textarea>
-<div class="row" style="margin-top:8px"><button id="saveBlockBtn">Adicionar Bloco</button><button onclick="hideAddBlock()" class="ghost">Cancelar</button></div>
+  <h3>Adicionar Bloco</h3>
+  <label>Tópico</label>
+  <select id="newBlockTopic"></select>
+  <label>Formato (uma por linha, JSON)</label>
+  <textarea id="newBlockQuestions" rows="6" placeholder='{ "q":"Pergunta", "a":true, "c":"Comentário" }'></textarea>
+  <div class="row" style="margin-top:8px"><button id="saveBlockBtn">Adicionar Bloco</button><button onclick="hideAddBlock()" class="ghost">Cancelar</button></div>
 </div>
 
 <div id="manageUsers" class="card hidden">
-<h3>Gerenciar Usuários</h3>
-<ul id="userList"></ul>
-<label>Nome</label><input id="manualUserName" placeholder="Nome do usuário">
-<label>Tipo</label><input id="manualUserType" placeholder="Tipo do usuário">
-<div class="row" style="margin-top:8px"><button id="addManualUserBtn">Adicionar</button><button onclick="hideManageUsers()" class="ghost">Fechar</button></div>
+  <h3>Gerenciar Usuários</h3>
+  <ul id="userList"></ul>
+  <div class="row" style="margin-top:8px">
+    <button id="addManualUserBtn">Adicionar Novo</button>
+    <button onclick="hideManageUsers()" class="ghost">Fechar</button>
+  </div>
 </div>
 
 <div id="manageQuestions" class="card hidden">
-<h3>Gerenciar Questões</h3>
-<label>Filtrar por tópico</label>
-<select id="filterTopic"><option value="">Todos</option><option value="Lport">Língua Portuguesa</option><option value="ride">RIDE</option><option value="Legisla">Legislação</option><option value="TemaEdu">Temas Educacionais</option><option value="Eduincl">Educação Inclusiva</option></select>
-<label>Pesquisar</label><input id="searchQuestion" placeholder="Digite palavra-chave">
-<div id="questionsList" class="grid" style="margin-top:8px;"></div>
-<div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
+  <h3>Gerenciar Questões</h3>
+  <label>Filtrar por tópico</label>
+  <select id="filterTopic"><option value="">Todos</option></select>
+  <label>Pesquisar</label>
+  <input id="searchQuestion" placeholder="Digite palavra-chave">
+  <div id="questionsList" class="grid" style="margin-top:8px;"></div>
+  <div style="margin-top:8px"><button onclick="hideManageQuestions()" class="ghost">Fechar</button></div>
 </div>
 
 <div id="editQuestionModal" class="card hidden">
-<h3>Editar Questão</h3>
-<label>Tópico</label>
-<select id="editTopic"><option value="Lport">Língua Portuguesa</option><option value="ride">RIDE</option><option value="Legisla">Legislação</option><option value="TemaEdu">Temas Educacionais</option><option value="Eduincl">Educação Inclusiva</option></select>
-<label>Pergunta</label><textarea id="editQuestionText" rows="3"></textarea>
-<label>Comentário</label><textarea id="editQuestionComment" rows="2"></textarea>
-<label>Resposta correta</label><select id="editQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
-<div class="row" style="margin-top:6px"><button id="saveEditBtn">Salvar Alterações</button><button onclick="hideEditModal()" class="ghost">Cancelar</button></div>
+  <h3>Editar Questão</h3>
+  <label>Tópico</label><select id="editTopic"></select>
+  <label>Pergunta</label><textarea id="editQuestionText" rows="3"></textarea>
+  <label>Comentário</label><textarea id="editQuestionComment" rows="2"></textarea>
+  <label>Resposta correta</label><select id="editQuestionAnswer"><option value="true">Certo</option><option value="false">Errado</option></select>
+  <div class="row" style="margin-top:6px"><button id="saveEditBtn">Salvar Alterações</button><button onclick="hideEditModal()" class="ghost">Cancelar</button></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabase=supabase.createClient('https://nqhthypeljupfftlmwsz.supabase.co','sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1');
+const supabase = supabase.createClient("https://nqhthypeljupfftlmwsz.supabase.co","sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1");
+</script>
+<script>
 const masterHeader=document.getElementById('masterHeader'),appControls=document.getElementById('appControls');let clickCount=0;
-masterHeader.addEventListener('click',()=>{clickCount++;setTimeout(()=>{if(clickCount>=2){appControls.classList.remove('hidden');clickCount=0}else{clickCount=0}},300)});
-const hideAddQuestion=()=>document.getElementById('addQuestionForm').classList.add('hidden');
-const hideAddBlock=()=>document.getElementById('addQuestionBlockForm').classList.add('hidden');
-const hideManageUsers=()=>document.getElementById('manageUsers').classList.add('hidden');
-const hideManageQuestions=()=>document.getElementById('manageQuestions').classList.add('hidden');
-const hideEditModal=()=>document.getElementById('editQuestionModal').classList.add('hidden');
+masterHeader.addEventListener('click',()=>{clickCount++;setTimeout(()=>{if(clickCount>=2){appControls.classList.remove('hidden');clickCount=0}else clickCount=0},300)});
+const hideAddQuestion=()=>document.getElementById('addQuestionForm').classList.add('hidden'),
+hideAddBlock=()=>document.getElementById('addQuestionBlockForm').classList.add('hidden'),
+hideManageUsers=()=>document.getElementById('manageUsers').classList.add('hidden'),
+hideManageQuestions=()=>document.getElementById('manageQuestions').classList.add('hidden'),
+hideEditModal=()=>document.getElementById('editQuestionModal').classList.add('hidden');
+
 document.getElementById('btnAddQ').addEventListener('click',()=>document.getElementById('addQuestionForm').classList.remove('hidden'));
 document.getElementById('btnAddBlock').addEventListener('click',()=>document.getElementById('addQuestionBlockForm').classList.remove('hidden'));
 document.getElementById('btnManageUsers').addEventListener('click',()=>{document.getElementById('manageUsers').classList.remove('hidden');renderUserList();});
 document.getElementById('btnManageQs').addEventListener('click',()=>{document.getElementById('manageQuestions').classList.remove('hidden');renderQuestionsList();});
 
-document.getElementById('saveQuestionBtn').addEventListener('click',async()=>{
-let topico=document.getElementById('newTopic').value.trim();
-let q=document.getElementById('newQuestionText').value.trim();
-let c=document.getElementById('newQuestionComment').value.trim();
-let a=document.getElementById('newQuestionAnswer').value==='true';
-if(!q){alert('Digite a pergunta');return;}
-try{
-let {data:existing}=await supabase.from('questoes').select().eq('enunciado',q).limit(1);
-if(existing.length>0){alert('Questão duplicada');return;}
-let {error}=await supabase.from('questoes').insert([{topico:topico,bloco_id:null,enunciado:q,correta:a,comentario:c}]);
-if(error){console.error(error);alert('Erro ao salvar');return;}
-document.getElementById('newQuestionText').value='';document.getElementById('newQuestionComment').value='';
-alert('Questão adicionada');renderQuestionsList();
-}catch(e){console.error(e);alert('Erro inesperado');}
-});
+// Inicializa tópicos
+const topics=[{id:'Lport',label:'Língua Portuguesa'},{id:'ride',label:'RIDE'},{id:'Legisla',label:'Legislação'},{id:'TemaEdu',label:'Temas Educacionais'},{id:'Eduincl',label:'Educação Inclusiva'}];
+['newTopic','newBlockTopic','filterTopic','editTopic'].forEach(s=>{const sel=document.getElementById(s);topics.forEach(t=>{let o=document.createElement('option');o.value=t.id;o.textContent=t.label;sel.appendChild(o);})});
 
-document.getElementById('saveBlockBtn').addEventListener('click',async()=>{
-let topico=document.getElementById('newBlockTopic').value.trim();
-let lines=document.getElementById('newBlockQuestions').value.split('\n').map(x=>x.trim()).filter(x=>x);
-if(!lines.length){alert('Nenhuma questão válida');return;}
-let count=0;
-for(let line of lines){
-try{let obj=JSON.parse(line.replace(/,$/,''));
-if(!obj.q||typeof obj.a==='undefined')continue;
-let {error}=await supabase.from('questoes').insert([{topico:topico,bloco_id:null,enunciado:obj.q,correta:obj.a,comentario:obj.c||''}]);
-if(!error)count++;
-}catch(e){console.error('Linha inválida:',line);}
-}
-alert(`Bloco adicionado com ${count} questão(ões)`);document.getElementById('newBlockQuestions').value='';renderQuestionsList();
-});
+// Usuários
+async function renderUserList(){const ul=document.getElementById('userList');ul.innerHTML='';let {data:users}=await supabase.from('usuarios').select('id,nome,tipo');users.forEach(u=>{let li=document.createElement('li');li.textContent=`${u.nome} (${u.tipo})`;let btnDel=document.createElement('button');btnDel.textContent='Revogar';btnDel.className='ghost';btnDel.style.marginLeft='6px';btnDel.onclick=async()=>{if(confirm('Revogar usuário?')){await supabase.from('usuarios').delete().eq('id',u.id);renderUserList();}};li.appendChild(btnDel);ul.appendChild(li);})}
+document.getElementById('addManualUserBtn').addEventListener('click',async()=>{let nome=prompt('Nome do usuário?'),tipo=prompt('Tipo?');if(nome&&tipo){await supabase.from('usuarios').insert([{nome,tipo}]);renderUserList();}});
 
-document.getElementById('addManualUserBtn').addEventListener('click',async()=>{
-let nome=document.getElementById('manualUserName').value.trim();
-let tipo=document.getElementById('manualUserType').value.trim();
-if(!nome||!tipo){alert('Preencha nome e tipo');return;}
-let {error}=await supabase.from('usuarios').insert([{nome:nome,tipo:tipo}]);
-if(error){console.error(error);alert('Erro');return;}
-document.getElementById('manualUserName').value='';document.getElementById('manualUserType').value='';
-renderUserList();
-});
-
-async function renderUserList(){
-let ul=document.getElementById('userList');ul.innerHTML='';
-let {data:users,error}=await supabase.from('usuarios').select('id,nome,tipo');
-if(error){console.error(error);return;}
-users.forEach(u=>{let li=document.createElement('li');li.textContent=`${u.nome} [${u.tipo}]`;let btnDel=document.createElement('button');btnDel.textContent='Revogar';btnDel.className='ghost';btnDel.style.marginLeft='6px';btnDel.onclick=async()=>{if(confirm('Revogar usuário?')){let {error}=await supabase.from('usuarios').delete().eq('id',u.id);if(error){console.error(error);alert('Erro');return;}renderUserList();}};li.appendChild(btnDel);ul.appendChild(li);});
-}
-
-let editingId=null;
-
-async function renderQuestionsList(){
-let container=document.getElementById('questionsList');container.innerHTML='';
-let search=(document.getElementById('searchQuestion')?.value||'').toLowerCase();
-let filterTopic=document.getElementById('filterTopic')?.value||'';
-let {data:qs,error}=await supabase.from('questoes').select('id,enunciado,correta,comentario,topico');
-if(error){console.error(error);return;}
-for(let q of qs){
-if(filterTopic&&filterTopic!==''&&q.topico!==filterTopic)continue;
-if(search&&!q.enunciado.toLowerCase().includes(search)&&!(q.comentario||'').toLowerCase().includes(search))continue;
-let row=document.createElement('div');row.className='row';
-let left=document.createElement('div');left.textContent=`[${q.topico}] ${q.enunciado}`;
-let right=document.createElement('div');right.textContent=q.correta?'✔':'✖';
-let btnEdit=document.createElement('button');btnEdit.textContent='Editar';btnEdit.className='ghost';btnEdit.onclick=()=>openEditModal(q.id);
-let btnDel=document.createElement('button');btnDel.textContent='Excluir';btnDel.className='ghost';btnDel.style.marginLeft='6px';btnDel.onclick=async()=>{if(confirm('Excluir questão?')){let {error}=await supabase.from('questoes').delete().eq('id',q.id);if(error){console.error(error);alert('Erro');return;}renderQuestionsList();}};
-row.appendChild(left);row.appendChild(right);row.appendChild(btnEdit);row.appendChild(btnDel);
-container.appendChild(row);
-}
-}
-
+// Questões
+async function renderQuestionsList(){const container=document.getElementById('questionsList');container.innerHTML='';let filterTopic=document.getElementById('filterTopic').value,search=document.getElementById('searchQuestion').value.toLowerCase();let {data:qs}=await supabase.from('questoes').select('id,bloco_id,enunciado,correta,comentario').order('id');for(let q of qs){let topicLabel='??';for(let t of topics)if(t.id===q.bloco_id)topicLabel=t.label;if(filterTopic&&topicLabel!==topics.find(tt=>tt.id===filterTopic)?.label)continue;if(search&&!q.enunciado.toLowerCase().includes(search))continue;let row=document.createElement('div');row.className='row';let left=document.createElement('div');left.textContent=`[${topicLabel}] ${q.enunciado}`;let right=document.createElement('div');right.textContent=q.correta?'✓':'✗';let btnEdit=document.createElement('button');btnEdit.textContent='Editar';btnEdit.className='ghost';btnEdit.onclick=()=>openEditModal(q.id);let btnDel=document.createElement('button');btnDel.textContent='Excluir';btnDel.className='ghost';btnDel.style.marginLeft='6px';btnDel.onclick=async()=>{if(confirm('Excluir questão?')){await supabase.from('questoes').delete().eq('id',q.id);renderQuestionsList();}};row.appendChild(left);row.appendChild(right);row.appendChild(btnEdit);row.appendChild(btnDel);container.appendChild(row);}}
 document.getElementById('searchQuestion')?.addEventListener('input',renderQuestionsList);
 document.getElementById('filterTopic')?.addEventListener('change',renderQuestionsList);
 
-async function openEditModal(id){
-editingId=id;
-let {data:[q],error}=await supabase.from('questoes').select().eq('id',id).limit(1);
-if(error||!q){alert('Erro');return;}
-document.getElementById('editQuestionText').value=q.enunciado;
-document.getElementById('editQuestionComment').value=q.comentario||'';
-document.getElementById('editQuestionAnswer').value=q.correta;
-document.getElementById('editTopic').value=q.topico;
-document.getElementById('editQuestionModal').classList.remove('hidden');
-}
+// Adicionar questão
+document.getElementById('saveQuestionBtn').addEventListener('click',async()=>{let t=document.getElementById('newTopic').value,q=document.getElementById('newQuestionText').value,c=document.getElementById('newQuestionComment').value,a=document.getElementById('newQuestionAnswer').value==='true';if(!q){alert('Digite a pergunta');return}await supabase.from('questoes').insert([{bloco_id:t,enunciado:q,correta:a,comentario:c}]);document.getElementById('newQuestionText').value='';document.getElementById('newQuestionComment').value='';renderQuestionsList();});
 
-document.getElementById('saveEditBtn').addEventListener('click',async()=>{
-let qtxt=document.getElementById('editQuestionText').value.trim();
-let c=document.getElementById('editQuestionComment').value.trim();
-let a=document.getElementById('editQuestionAnswer').value==='true';
-let t=document.getElementById('editTopic').value.trim();
-if(!qtxt){alert('Digite a pergunta');return;}
-let {error}=await supabase.from('questoes').update({enunciado:qtxt,comentario:c,correta:a,topico:t}).eq('id',editingId);
-if(error){console.error(error);alert('Erro');return;}
-hideEditModal();renderQuestionsList();
-});
+// Adicionar bloco
+document.getElementById('saveBlockBtn').addEventListener('click',async()=>{let t=document.getElementById('newBlockTopic').value,b=document.getElementById('newBlockQuestions').value.split('\n').map(x=>x.trim()).filter(x=>x);let count=0;for(let line of b){try{let obj=JSON.parse(line.replace(/,$/,''));if(obj.q&&typeof obj.a!=='undefined'){await supabase.from('questoes').insert([{bloco_id:t,enunciado:obj.q,correta:obj.a,comentario:obj.c||''}]);count++}}catch(e){console.error('Erro linha:',line)}}alert(`Bloco adicionado com ${count} questão(ões)`);hideAddBlock();renderQuestionsList();});
 
-renderQuestionsList();renderUserList();
+// Editar questão
+let editingId=null;
+async function openEditModal(id){editingId=id;let {data:qs}=await supabase.from('questoes').select().eq('id',id).single();document.getElementById('editTopic').value=qs.bloco_id;document.getElementById('editQuestionText').value=qs.enunciado;document.getElementById('editQuestionComment').value=qs.comentario;document.getElementById('editQuestionAnswer').value=qs.correta;document.getElementById('editQuestionModal').classList.remove('hidden');}
+document.getElementById('saveEditBtn').addEventListener('click',async()=>{let t=document.getElementById('editTopic').value,q=document.getElementById('editQuestionText').value,c=document.getElementById('editQuestionComment').value,a=document.getElementById('editQuestionAnswer').value==='true';if(!q){alert('Digite a pergunta');return}await supabase.from('questoes').update({bloco_id:t,enunciado:q,correta:a,comentario:c}).eq('id',editingId);hideEditModal();renderQuestionsList();});
+
+// Inicialização
+renderUserList();renderQuestionsList();
 </script>
-</main></body></html>
+</main>
+</body></html>
