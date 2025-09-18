@@ -1,1 +1,73 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Master Admin</title><style>body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f4f4f9;color:#333}header{background:#1E90FF;color:#fff;padding:10px;text-align:center;cursor:pointer}nav{display:flex;justify-content:center;background:#FFA500;padding:10px}nav button{margin:0 5px;padding:10px;border:none;border-radius:8px;background:#1E90FF;color:#fff;cursor:pointer}nav button:hover{background:#104E8B}section{display:none;padding:20px}section.active{display:block}table{width:100%;border-collapse:collapse;margin-top:10px}th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#eee}#demoBanner{background:red;color:#fff;text-align:center;padding:5px}</style><script src="https://unpkg.com/@supabase/supabase-js"></script></head><body><header ondblclick="toggleNav()">Painel Master</header><div id="demoBanner">Modo demo: até 5 questões</div><nav id="mainNav" style="display:none"><button onclick="showTab('questions')">Gerenciar Questões</button><button onclick="showTab('blocks')">Adicionar Blocos</button><button onclick="showTab('users')">Gerenciar Usuários</button><button onclick="showTab('addq')">Adicionar Questão</button></nav><section id="questions"><h2>Questões</h2><select id="filterTopics"></select><div id="questionsList"></div></section><section id="blocks"><h2>Adicionar Blocos</h2><textarea id="blockJson" rows="6" style="width:100%"></textarea><button onclick="addBlock()">Salvar Bloco</button></section><section id="users"><h2>Gerenciar Usuários</h2><button onclick="addUserPrompt()">Adicionar Novo Usuário</button><div id="usersList"></div></section><section id="addq"><h2>Adicionar Questão</h2><input id="qText" placeholder="Enunciado" style="width:100%"><br><br><select id="qCorrect"><option value="true">Correta</option><option value="false">Incorreta</option></select><br><br><textarea id="qComment" placeholder="Comentário" style="width:100%"></textarea><br><br><select id="qBlock"></select><br><br><button onclick="saveQuestion()">Salvar</button></section><script>const supabaseClient=supabase.createClient("https://nqhthypeljupfftlmwsz.supabase.co","sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1");let blocksMap={};function toggleNav(){document.getElementById("mainNav").style.display=document.getElementById("mainNav").style.display==="none"?"flex":"none"}function showTab(id){document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}async function loadBlocks(){let{data,error}=await supabaseClient.from("blocos").select("*");if(error){console.error(error);return}blocksMap={};let sel=document.getElementById("filterTopics");let sel2=document.getElementById("qBlock");sel.innerHTML="<option value=''>Todos</option>";sel2.innerHTML="";data.forEach(b=>{blocksMap[b.id]=b.nome;sel.innerHTML+=`<option value="${b.id}">${b.nome}</option>`;sel2.innerHTML+=`<option value="${b.id}">${b.nome}</option>`})}async function loadQuestions(filter=""){let q=supabaseClient.from("questoes").select("*");if(filter)q=q.eq("bloco_id",filter);let{data,error}=await q;if(error){console.error(error);return}let div=document.getElementById("questionsList");div.innerHTML="<table><tr><th>Enunciado</th><th>Comentário</th><th>Correta</th><th>Bloco</th></tr>"+data.map(r=>`<tr><td>${r.enunciado}</td><td>${r.comentario||""}</td><td>${r.correta?"✔":"✘"}</td><td>${blocksMap[r.bloco_id]||"[unknown]"}</td></tr>`).join("")+"</table>"}document.getElementById("filterTopics").addEventListener("change",e=>loadQuestions(e.target.value));async function addBlock(){try{let raw=document.getElementById("blockJson").value.trim();let parsed=eval(raw);if(!Array.isArray(parsed))parsed=[parsed];let{data:block,error:blockErr}=await supabaseClient.from("blocos").insert([{nome:"Novo Bloco"}]).select();if(blockErr)throw blockErr;let bid=block[0].id;for(let q of parsed){await supabaseClient.from("questoes").insert([{enunciado:q.q,correta:q.a,comentario:q.c,bloco_id:bid}])}alert("Bloco e questões inseridos!");loadBlocks();loadQuestions()}catch(e){console.error(e);alert("Erro ao inserir bloco")}}async function loadUsers(){let{data,error}=await supabaseClient.from("usuarios").select("id,nome,tipo");if(error){console.error(error);return}let div=document.getElementById("usersList");div.innerHTML="<table><tr><th>Nome</th><th>Tipo</th><th>Ações</th></tr>"+data.map(u=>`<tr><td>${u.nome}</td><td>${u.tipo}</td><td><button onclick="revokeUser('${u.id}')">Revogar</button></td></tr>`).join("")+"</table>"}async function addUserPrompt(){let nome=prompt("Nome do usuário:");if(!nome)return;let tipo=prompt("Tipo (ex: full):");if(!tipo)return;let{error}=await supabaseClient.from("usuarios").insert([{nome,tipo}]);if(error)alert("Erro");else loadUsers()}async function revokeUser(id){await supabaseClient.from("usuarios").delete().eq("id",id);loadUsers()}async function saveQuestion(){let en=document.getElementById("qText").value.trim();if(!en){alert("Digite enunciado");return}let cor=document.getElementById("qCorrect").value==="true";let com=document.getElementById("qComment").value.trim();let bid=document.getElementById("qBlock").value;if(!bid){alert("Selecione bloco");return}let{data:exists}=await supabaseClient.from("questoes").select("id").eq("enunciado",en);if(exists.length){alert("Questão já existe");return}let{error}=await supabaseClient.from("questoes").insert([{enunciado:en,correta:cor,comentario:com,bloco_id:bid}]);if(error){alert("Erro ao salvar");return}alert("Questão salva!");document.getElementById("qText").value="";document.getElementById("qComment").value=""}window.onload=()=>{loadBlocks();loadQuestions();loadUsers()};</script></body></html>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Master Admin</title><style>
+body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#f4f4f9;color:#333}
+header{background:#1E90FF;color:#fff;padding:12px;text-align:center;cursor:pointer}
+nav{display:flex;justify-content:center;gap:12px;background:#eee;padding:10px}
+nav button{padding:8px 14px;border:none;border-radius:8px;background:#1E90FF;color:#fff;cursor:pointer}
+nav button:hover{background:#104E8B}
+section{display:none;padding:16px}
+.active{display:block}
+table{border-collapse:collapse;width:100%;margin-top:12px}
+table,th,td{border:1px solid #ccc}
+th,td{padding:8px;text-align:left}
+input,select,textarea{padding:6px;margin:4px;width:95%}
+#questionForm,#blockForm,#userForm{max-width:600px;margin:auto}
+</style></head><body>
+<header ondblclick="showSection('manageQuestions')">Painel Master</header>
+<nav>
+<button onclick="showSection('manageQuestions')">Gerenciar Questões</button>
+<button onclick="showSection('addQuestion')">Adicionar Questão</button>
+<button onclick="showSection('addBlock')">Adicionar Bloco</button>
+<button onclick="showSection('manageUsers')">Gerenciar Usuários</button>
+</nav>
+<section id="manageQuestions">
+<h2>Gerenciar Questões</h2>
+<input type="text" id="searchQuestion" placeholder="Pesquisar questão...">
+<select id="filterBlock"></select>
+<div id="questionsList"></div>
+</section>
+<section id="addQuestion">
+<h2>Adicionar Questão</h2>
+<form id="questionForm">
+<label>Bloco:</label><select id="questionBlock"></select>
+<label>Enunciado:</label><textarea id="questionText"></textarea>
+<label>Comentário:</label><textarea id="questionComment"></textarea>
+<label>Resposta Correta:</label><select id="questionAnswer"><option value="true">Verdadeiro</option><option value="false">Falso</option></select>
+<button type="submit">Salvar Questão</button>
+</form>
+</section>
+<section id="addBlock">
+<h2>Adicionar Bloco</h2>
+<form id="blockForm">
+<label>Nome do Bloco:</label><input type="text" id="blockName">
+<button type="submit">Salvar Bloco</button>
+</form>
+</section>
+<section id="manageUsers">
+<h2>Gerenciar Usuários</h2>
+<button onclick="showAddUser()">Adicionar Usuário</button>
+<div id="userForm" style="display:none;">
+<label>Nome:</label><input type="text" id="userName">
+<label>Tipo:</label><input type="text" id="userType">
+<button onclick="addUser()">Salvar Usuário</button>
+</div>
+<div id="usersList"></div>
+</section>
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
+<script>
+const SUPABASE_URL="https://nqhthypeljupfftlmwsz.supabase.co";
+const SUPABASE_KEY="sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1";
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+function showSection(id){document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+let blocks=[];
+async function loadBlocks(){let{data,error}=await supabaseClient.from("blocos").select("id,nome");if(error){console.error("Erro carregando blocos",error);return}blocks=data;let fb=document.getElementById("filterBlock");let qb=document.getElementById("questionBlock");fb.innerHTML='<option value="">Todos</option>';qb.innerHTML="";data.forEach(b=>{fb.innerHTML+=`<option value="${b.id}">${b.nome}</option>`;qb.innerHTML+=`<option value="${b.id}">${b.nome}</option>`})}
+async function loadQuestions(){let{data,error}=await supabaseClient.from("questoes").select("id,bloco_id,enunciado,correta,comentario,blocos(nome)").order("id");if(error){console.error("Erro carregando questões",error);return}renderQuestions(data)}
+function renderQuestions(data){let search=document.getElementById("searchQuestion").value.toLowerCase();let fb=document.getElementById("filterBlock").value;let container=document.getElementById("questionsList");container.innerHTML="";data.filter(q=>(!fb||q.bloco_id===fb)&&(!search||q.enunciado.toLowerCase().includes(search))).forEach(q=>{let div=document.createElement("div");div.innerHTML=`<b>${q.enunciado}</b><br>Resposta: ${q.correta?"Verdadeiro":"Falso"}<br>Comentário: ${q.comentario||""}<br>Bloco: ${q.blocos? q.blocos.nome:"-"}`;container.appendChild(div)})}
+document.getElementById("searchQuestion").addEventListener("input",loadQuestions);
+document.getElementById("filterBlock").addEventListener("change",loadQuestions);
+document.getElementById("questionForm").addEventListener("submit",async e=>{e.preventDefault();let bloco=document.getElementById("questionBlock").value;let en=document.getElementById("questionText").value;let co=document.getElementById("questionComment").value;let ans=document.getElementById("questionAnswer").value==="true";if(!en){alert("Digite a questão");return}let{error}=await supabaseClient.from("questoes").insert([{bloco_id:bloco,enunciado:en,comentario:co,correta:ans}]);if(error){alert("Erro: "+error.message);return}alert("Questão salva!");document.getElementById("questionForm").reset();loadQuestions()});
+document.getElementById("blockForm").addEventListener("submit",async e=>{e.preventDefault();let nome=document.getElementById("blockName").value;if(!nome){alert("Digite o nome");return}let{error}=await supabaseClient.from("blocos").insert([{nome}]);if(error){alert("Erro: "+error.message);return}alert("Bloco salvo!");document.getElementById("blockForm").reset();loadBlocks()});function showAddUser(){document.getElementById("userForm").style.display="block"}
+async function addUser(){let nome=document.getElementById("userName").value;let tipo=document.getElementById("userType").value;if(!nome||!tipo){alert("Preencha todos os campos");return}let{error}=await supabaseClient.from("usuarios").insert([{nome:nome,tipo:tipo}]);if(error){alert("Erro: "+error.message);return}alert("Usuário adicionado!");document.getElementById("userForm").style.display="none";document.getElementById("userName").value="";document.getElementById("userType").value="";loadUsers()}
+async function loadUsers(){let{data,error}=await supabaseClient.from("usuarios").select("id,nome,tipo");if(error){console.error("Erro carregando usuários",error);return}let container=document.getElementById("usersList");container.innerHTML="<table><tr><th>Nome</th><th>Tipo</th><th>Ações</th></tr></table>";let tbl=container.querySelector("table");data.forEach(u=>{let tr=document.createElement("tr");tr.innerHTML=`<td>${u.nome}</td><td>${u.tipo}</td><td><button onclick="deleteUser('${u.id}')">Revogar</button></td>`;tbl.appendChild(tr)})}
+async function deleteUser(id){if(!confirm("Revogar este usuário?"))return;let{error}=await supabaseClient.from("usuarios").delete().eq("id",id);if(error){alert("Erro: "+error.message);return}alert("Usuário revogado!");loadUsers()}
+window.onload=()=>{loadBlocks().then(()=>loadQuestions());loadUsers();}
+</script></body></html>
