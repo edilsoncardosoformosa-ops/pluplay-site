@@ -1,1 +1,61 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mapas Mentais Públicos</title><style>:root{--p:#1E90FF;--bg:#f4f4f9;--fg:#333}body{margin:0;font-family:Arial;background:var(--bg);color:var(--fg)}header{background:var(--p);color:#fff;padding:12px 20px;text-align:center}header h1{margin:0;font-size:1.8em}main{padding:20px}.card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.06);margin-bottom:16px}.file-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#f0f0f0;border-radius:6px;margin-bottom:8px}.file-item a{text-decoration:none;color:var(--p)}.btn{cursor:pointer;padding:6px 12px;border-radius:6px;border:none;background:var(--p);color:#fff}</style></head><body><header><h1>Mapas Mentais Públicos</h1></header><main><div class="card"><h3>Enviar Mapa Mental</h3><input type="file" id="fileInput"><button class="btn" id="uploadBtn">Enviar</button></div><div class="card" id="fileList"><h3>Mapas Disponíveis</h3></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>const SUPABASE_URL="https://nqhthypeljupfftlmwsz.supabase.co",SUPABASE_KEY="sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1",supabase=supabase.createClient(SUPABASE_URL,SUPABASE_KEY),fileList=document.getElementById("fileList");async function sha256(t){const e=new TextEncoder().encode(t),n=await crypto.subtle.digest("SHA-256",e);return Array.from(new Uint8Array(n)).map(t=>t.toString(16).padStart(2,"0")).join("")}async function loadFiles(){const{data:e,error:n}=await supabase.from("mapas").select("id,nome,url,uploader_id").order("created_at",{ascending:!1});if(n){console.error(n);return}fileList.innerHTML="<h3>Mapas Disponíveis</h3>",e.forEach(e=>{let n=document.createElement("div");n.className="file-item";let a=document.createElement("a");a.href=e.url,a.target="_blank",a.textContent=e.nome,n.appendChild(a);let t=document.createElement("button");t.textContent="Excluir",t.className="btn",t.onclick=async()=>{const n=prompt("Digite sua senha para excluir");if(!n)return;const a=await sha256(n);if(a!==e.uploader_id){alert("Senha incorreta ou não é seu arquivo.");return}confirm("Excluir mapa?")&&(await supabase.from("mapas").delete().eq("id",e.id),await supabase.storage.from("mapas").remove([e.nome]),loadFiles())},n.appendChild(t),fileList.appendChild(n)})}loadFiles(),document.getElementById("uploadBtn").addEventListener("click",async()=>{const e=document.getElementById("fileInput").files[0];if(!e){alert("Selecione um arquivo");return}const n=prompt("Digite sua senha para envio");if(!n)return;const a=await sha256(n),t=Date.now()+"_"+e.name;await supabase.storage.from("mapas").upload(t,e);const{error:o}=await supabase.from("mapas").insert({nome:t,url:`${SUPABASE_URL}/storage/v1/object/public/mapas/${t}`,uploader_id:a});o?console.error(o):(alert("Enviado com sucesso"),loadFiles())});</script></main></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Compartilhar Mapas Mentais</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background:#f4f4f9; color:#333; }
+h1 { color:#1E90FF; }
+form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,0.1); max-width:400px; }
+input[type=file], input[type=text] { width:100%; padding:8px; margin-bottom:12px; border:1px solid #ccc; border-radius:5px; }
+button { background:#1E90FF; color:#fff; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; }
+button:disabled { background:#999; cursor:not-allowed; }
+.message { margin-top:10px; }
+</style>
+</head>
+<body>
+<h1>Compartilhe seu Mapa Mental</h1>
+<form id="mapForm">
+<label>Nome do mapa:</label>
+<input type="text" id="mapName" placeholder="Ex: História do Brasil" required>
+<label>Escolha o arquivo (.pdf, .jpg, .jpeg, até 10MB):</label>
+<input type="file" id="mapFile" accept=".pdf,.jpg,.jpeg" required>
+<button type="submit">Enviar</button>
+<div class="message" id="msg"></div>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://nqhthypeljupfftlmwsz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1';
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.getElementById('mapForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('mapName').value.trim();
+  const fileInput = document.getElementById('mapFile');
+  const file = fileInput.files[0];
+  const msg = document.getElementById('msg');
+  msg.textContent = '';
+
+  if (!file) return msg.textContent = 'Selecione um arquivo!';
+  if (!['application/pdf','image/jpeg'].includes(file.type)) return msg.textContent = 'Formato inválido!';
+  if (file.size > 10 * 1024 * 1024) return msg.textContent = 'Arquivo maior que 10 MB!';
+
+  try {
+    const filePath = `${Date.now()}_${file.name}`;
+    const { data, error } = await supabase.storage.from('mapas').upload(filePath, file, { upsert: true });
+    if (error) throw error;
+
+    msg.textContent = 'Upload realizado com sucesso!';
+    fileInput.value = '';
+    document.getElementById('mapName').value = '';
+  } catch (err) {
+    console.error(err);
+    msg.textContent = 'Erro ao enviar o arquivo.';
+  }
+});
+</script>
+</body>
+</html>
