@@ -1,159 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compartilhamento de Mapas Mentais</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f9;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-    }
-    form {
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    input, button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #1E90FF;
-      color: #fff;
-      cursor: pointer;
-      border: none;
-    }
-    button:hover {
-      background: #187bcd;
-    }
-    .mapa-item {
-      background: #fff;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .mapa-item a {
-      color: #1E90FF;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapas Mentais - Curso 3</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f9; color: #333; }
+  header { background: #1E90FF; color: #fff; padding: 10px 20px; text-align: center; }
+  h2 { color: #FFA500; margin-top: 40px; }
+  .mapa { margin: 20px auto; padding: 10px; border-radius: 8px; background: #fff; max-width: 900px; border: 1px solid #ccc; }
+  .mapa img { width: 100%; height: auto; border-radius: 5px; }
+  a.download { display: block; margin-top: 10px; color: #1E90FF; font-weight: bold; text-decoration: none; }
+</style>
 </head>
 <body>
-  <h1>📚 Compartilhamento de Mapas Mentais</h1>
+<header>
+  <h1>Mapas Mentais</h1>
+  <p>Visualize e faça download dos mapas mentais por tópico</p>
+</header>
 
-  <form id="uploadForm">
-    <input type="text" id="titulo" placeholder="Título do Mapa" required />
-    <input type="text" id="descricao" placeholder="Descrição" required />
-    <input type="file" id="mapaFile" accept=".pdf,.jpg,.jpeg,.png" required />
-    <button type="submit">Enviar Mapa</button>
-  </form>
+<!-- I. CONHECIMENTOS BÁSICOS -->
+<div class="mapa">
+  <h2>I.1 - Língua Portuguesa e Redação Oficial</h2>
+  <a href="https://image.slidesharecdn.com/mapamentalportugues-1-638.jpg" target="_blank">
+    <img src="https://image.slidesharecdn.com/mapamentalportugues-1-638.jpg" alt="Compreensão de Textos">
+  </a>
+  <a class="download" href="https://image.slidesharecdn.com/mapamentalportugues-1-638.jpg" download>Download</a>
+</div>
 
-  <h2>📂 Mapas Disponíveis</h2>
-  <div id="mapasList"></div>
+<div class="mapa">
+  <h2>I.1.2 - Reconhecimento de Tipos e Gêneros Textuais</h2>
+  <a href="https://image.slidesharecdn.com/mapamentalportugues-2-638.jpg" target="_blank">
+    <img src="https://image.slidesharecdn.com/mapamentalportugues-2-638.jpg" alt="Tipos e Gêneros Textuais">
+  </a>
+  <a class="download" href="https://image.slidesharecdn.com/mapamentalportugues-2-638.jpg" download>Download</a>
+</div>
 
-  <script type="module">
-    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+<div class="mapa">
+  <h2>I.1.3 - Ortografia Oficial</h2>
+  <a href="https://image.slidesharecdn.com/mapamentalportugues-3-638.jpg" target="_blank">
+    <img src="https://image.slidesharecdn.com/mapamentalportugues-3-638.jpg" alt="Ortografia Oficial">
+  </a>
+  <a class="download" href="https://image.slidesharecdn.com/mapamentalportugues-3-638.jpg" download>Download</a>
+</div>
 
-    const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co"; // 🔹 troque pelo seu
-    const SUPABASE_KEY = "sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1"; // 🔹 chave anon
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+<div class="mapa">
+  <h2>I.1.4 - Mecanismos de Coesão Textual</h2>
+  <a href="https://image.slidesharecdn.com/mapamentalportugues-4-638.jpg" target="_blank">
+    <img src="https://image.slidesharecdn.com/mapamentalportugues-4-638.jpg" alt="Coesão Textual">
+  </a>
+  <a class="download" href="https://image.slidesharecdn.com/mapamentalportugues-4-638.jpg" download>Download</a>
+</div>
 
-    // Upload de mapa
-    async function uploadMapa(file, titulo, descricao) {
-      try {
-        const filePath = `mapas/${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from("mapas")
-          .upload(filePath, file);
+<div class="mapa">
+  <h2>I.1.5 - Estrutura Morfossintática do Período</h2>
+  <a href="https://image.slidesharecdn.com/mapamentalportugues-5-638.jpg" target="_blank">
+    <img src="https://image.slidesharecdn.com/mapamentalportugues-5-638.jpg" alt="Morfossintaxe">
+  </a>
+  <a class="download" href="https://image.slidesharecdn.com/mapamentalportugues-5-638.jpg" download>Download</a>
+</div>
 
-        if (uploadError) {
-          console.error(uploadError);
-          alert("Erro ao enviar arquivo!");
-          return;
-        }
-
-        const { data: publicUrl } = supabase.storage
-          .from("mapas")
-          .getPublicUrl(filePath);
-
-        const { error: dbError } = await supabase
-          .from("mapas")
-          .insert([
-            { titulo, descricao, arquivo_url: publicUrl.publicUrl }
-          ]);
-
-        if (dbError) {
-          console.error(dbError);
-          alert("Erro ao salvar no banco!");
-        } else {
-          alert("Mapa enviado com sucesso!");
-          carregarMapas();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    // Evento formulário
-    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const file = document.getElementById("mapaFile").files[0];
-      const titulo = document.getElementById("titulo").value;
-      const descricao = document.getElementById("descricao").value;
-
-      if (!file) {
-        alert("Selecione um arquivo!");
-        return;
-      }
-
-      await uploadMapa(file, titulo, descricao);
-      e.target.reset();
-    });
-
-    // Carregar mapas existentes
-    async function carregarMapas() {
-      const { data, error } = await supabase
-        .from("mapas")
-        .select("*")
-        .order("id", { ascending: false });
-
-      if (error) {
-        console.error(error);
-        return;
-      }
-
-      const lista = document.getElementById("mapasList");
-      lista.innerHTML = "";
-
-      data.forEach(mapa => {
-        const div = document.createElement("div");
-        div.className = "mapa-item";
-        div.innerHTML = `
-          <h3>${mapa.titulo}</h3>
-          <p>${mapa.descricao}</p>
-          <a href="${mapa.arquivo_url}" target="_blank">📥 Baixar</a>
-        `;
-        lista.appendChild(div);
-      });
-    }
-
-    // Inicializar
-    carregarMapas();
-  </script>
 </body>
 </html>
