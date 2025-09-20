@@ -1,112 +1,159 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Mapas Mentais - Plug & Play</title>
-<style>
-:root{--p:#1E90FF;--s:#FFA500;--bg:#f4f4f9;--fg:#333}
-body{margin:0;font-family:Arial;background:var(--bg);color:var(--fg)}
-header{background:var(--p);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:10px 20px}
-header h1{margin:0;font-size:1.5em}
-section{padding:20px}
-button{background:var(--p);color:#fff;border:none;padding:8px 15px;border-radius:5px;cursor:pointer;margin:2px}
-input[type=file]{margin-bottom:10px}
-.mapas-list{list-style:none;padding:0}
-.mapas-list li{background:#fff;margin-bottom:10px;padding:10px;border-radius:5px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compartilhamento de Mapas Mentais</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #1E90FF;
+      color: #fff;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #187bcd;
+    }
+    .mapa-item {
+      background: #fff;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .mapa-item a {
+      color: #1E90FF;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
+  <h1>📚 Compartilhamento de Mapas Mentais</h1>
 
-<header>
-<h1>Compartilhamento de Mapas Mentais</h1>
-</header>
+  <form id="uploadForm">
+    <input type="text" id="titulo" placeholder="Título do Mapa" required />
+    <input type="text" id="descricao" placeholder="Descrição" required />
+    <input type="file" id="mapaFile" accept=".pdf,.jpg,.jpeg,.png" required />
+    <button type="submit">Enviar Mapa</button>
+  </form>
 
-<section>
-<h2>Enviar novo mapa</h2>
-<input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg"><br>
-<button id="uploadBtn">Enviar</button>
-</section>
+  <h2>📂 Mapas Disponíveis</h2>
+  <div id="mapasList"></div>
 
-<section>
-<h2>Mapas Disponíveis</h2>
-<ul id="mapasList" class="mapas-list"></ul>
-</section>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const SUPABASE_URL = "https://nqhthypeljupfftlmwsz.supabase.co"; // 🔹 troque pelo seu
+    const SUPABASE_KEY = "sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1"; // 🔹 chave anon
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabaseUrl = 'https://nqhthypeljupfftlmwsz.supabase.co';
-const supabaseKey = 'sb_publishable_Nzfhcwd_mFYlzJro3318-g_aX6vGjD1';
-const supabase = createClient(supabaseUrl, supabaseKey);
+    // Upload de mapa
+    async function uploadMapa(file, titulo, descricao) {
+      try {
+        const filePath = `mapas/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from("mapas")
+          .upload(filePath, file);
 
-// Função para listar mapas
-async function loadMapas() {
-    const { data, error } = await supabase
-        .from('mapas')
-        .select('*')
-        .order('criado_em', { ascending: false });
-    if(error) { console.error(error); return; }
-    const ul = document.getElementById('mapasList');
-    ul.innerHTML = '';
-    data.forEach(m => {
-        const li = document.createElement('li');
-        const link = document.createElement('a');
-        link.href = m.url;
-        link.target = '_blank';
-        link.textContent = m.nome_arquivo;
-        li.appendChild(link);
-
-        // Botão de excluir só aparece se for o dono
-        if(supabase.auth.user() && supabase.auth.user().id === m.usuario_id){
-            const btnDel = document.createElement('button');
-            btnDel.textContent = 'Excluir';
-            btnDel.onclick = async () => {
-                if(confirm('Deseja realmente excluir este mapa?')){
-                    await supabase.storage.from('mapas').remove([m.nome_arquivo]);
-                    await supabase.from('mapas').delete().eq('id', m.id);
-                    loadMapas();
-                }
-            };
-            li.appendChild(btnDel);
+        if (uploadError) {
+          console.error(uploadError);
+          alert("Erro ao enviar arquivo!");
+          return;
         }
-        ul.appendChild(li);
-    });
-}
 
-// Função de upload
-document.getElementById('uploadBtn').onclick = async () => {
-    const fileInput = document.getElementById('fileInput');
-    const file = fileInput.files[0];
-    if(!file) { alert('Selecione um arquivo'); return; }
-    const user = supabase.auth.user();
-    if(!user){
-        alert('É necessário estar autenticado para enviar arquivos.');
-        return;
+        const { data: publicUrl } = supabase.storage
+          .from("mapas")
+          .getPublicUrl(filePath);
+
+        const { error: dbError } = await supabase
+          .from("mapas")
+          .insert([
+            { titulo, descricao, arquivo_url: publicUrl.publicUrl }
+          ]);
+
+        if (dbError) {
+          console.error(dbError);
+          alert("Erro ao salvar no banco!");
+        } else {
+          alert("Mapa enviado com sucesso!");
+          carregarMapas();
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
 
-    const { data, error } = await supabase.storage.from('mapas').upload(file.name, file, {
-        cacheControl: '3600',
-        upsert: false,
-        metadata: { owner: user.id }
+    // Evento formulário
+    document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = document.getElementById("mapaFile").files[0];
+      const titulo = document.getElementById("titulo").value;
+      const descricao = document.getElementById("descricao").value;
+
+      if (!file) {
+        alert("Selecione um arquivo!");
+        return;
+      }
+
+      await uploadMapa(file, titulo, descricao);
+      e.target.reset();
     });
-    if(error){ console.error(error); alert('Erro ao enviar'); return; }
 
-    // Inserir registro na tabela
-    const url = `https://nqhthypeljupfftlmwsz.supabase.co/storage/v1/object/public/mapas/${file.name}`;
-    await supabase.from('mapas').insert({
-        usuario_id: user.id,
-        nome_arquivo: file.name,
-        url: url,
-        tipo: file.type
-    });
-    fileInput.value = '';
-    loadMapas();
-};
+    // Carregar mapas existentes
+    async function carregarMapas() {
+      const { data, error } = await supabase
+        .from("mapas")
+        .select("*")
+        .order("id", { ascending: false });
 
-// Inicializa lista
-loadMapas();
-</script>
+      if (error) {
+        console.error(error);
+        return;
+      }
 
+      const lista = document.getElementById("mapasList");
+      lista.innerHTML = "";
+
+      data.forEach(mapa => {
+        const div = document.createElement("div");
+        div.className = "mapa-item";
+        div.innerHTML = `
+          <h3>${mapa.titulo}</h3>
+          <p>${mapa.descricao}</p>
+          <a href="${mapa.arquivo_url}" target="_blank">📥 Baixar</a>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    // Inicializar
+    carregarMapas();
+  </script>
 </body>
 </html>
